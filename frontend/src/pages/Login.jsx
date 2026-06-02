@@ -1,5 +1,22 @@
 import { Link } from 'react-router-dom';
 
+import AuthForm from '../components/AuthForm.jsx';
+
+const loginFields = [
+  {
+    id: 'email',
+    label: 'Email',
+    placeholder: 'name@example.com',
+    type: 'email',
+  },
+  {
+    id: 'password',
+    label: 'Password',
+    placeholder: 'Enter your password',
+    type: 'password',
+  },
+];
+
 const Login = () => {
   return (
     <main className="auth-page">
@@ -13,26 +30,7 @@ const Login = () => {
           <p>Save recipes, manage your creations, and keep cooking.</p>
         </div>
 
-        <form className="auth-form">
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" placeholder="name@example.com" type="email" />
-
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            placeholder="Enter your password"
-            type="password"
-          />
-
-          <button className="button primary full" type="submit">
-            Sign in
-          </button>
-        </form>
-
-        <p className="auth-note">
-          New to RECIPE-APP? <Link to="/">Create an account</Link>
-        </p>
+        <AuthForm fields={loginFields} mode="login" />
       </section>
     </main>
   );

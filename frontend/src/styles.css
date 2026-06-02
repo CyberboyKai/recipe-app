@@ -298,21 +298,26 @@ input {
 
 .auth-form {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
-.auth-form label {
+.form-field {
+  display: grid;
+  gap: 8px;
+}
+
+.form-field label {
   font-weight: 800;
 }
 
-.auth-form input {
+.form-field input {
   border: 1px solid #d8d1c6;
   border-radius: 8px;
   min-height: 48px;
   padding: 0 14px;
 }
 
-.auth-form input:focus {
+.form-field input:focus {
   border-color: #f6a11a;
   outline: 3px solid rgba(246, 161, 26, 0.18);
 }
