@@ -9,7 +9,7 @@ function AdminPage() {
   useEffect(() => {
     const fetchPendingRecipes = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/admin/pending');
+        const response = await axios.get('http://localhost:5000/api/admin/pending');
         setPendingRecipes(response.data);
       } catch (error) {
         console.error('Error fetching recipes:', error);
@@ -22,7 +22,7 @@ function AdminPage() {
 
   const handleApprove = async (recipeId) => {
     try {
-      await axios.put(`http://localhost:5001/api/admin/approve/${recipeId}`);
+      await axios.put(`http://localhost:5000/api/admin/approve/${recipeId}`);
       // Remove the approved recipe from the screen
       setPendingRecipes(pendingRecipes.filter(recipe => recipe.id !== recipeId));
     } catch (error) {
