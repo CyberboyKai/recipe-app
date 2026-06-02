@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon, PhotoIcon, BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 
@@ -204,25 +204,22 @@ export default function RecipePage() {
   });
 
   const [showFilters, setShowFilters] = useState(false);
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-
-    if (activeSource === RECIPE_SOURCE.OFFICIAL) {
-      setRecipes(MOCK_OFFICIAL_RECIPES);
-    } else {
-      setRecipes(MOCK_USER_RECIPES);
-    }
-
-    setLoading(false);
-  }, [activeSource, query, filters]);
+  const [recipes, setRecipes] = useState(MOCK_OFFICIAL_RECIPES);
 
   // TODO: save in firebase
   function handleSave(id) {
     setRecipes((prev) =>
       prev.map((r) => (r.id === id ? { ...r, saved: !r.saved } : r))
+    );
+  }
+
+  function handleSourceChange(source) {
+    setActiveSource(source);
+
+    setRecipes(
+      source === RECIPE_SOURCE.OFFICIAL
+        ? MOCK_OFFICIAL_RECIPES
+        : MOCK_USER_RECIPES
     );
   }
 
@@ -260,7 +257,7 @@ export default function RecipePage() {
         {/* TOGGLE */}
         <div className="ml-auto flex rounded-full bg-gray-100 p-1 text-sm">
           <button
-            onClick={() => setActiveSource(RECIPE_SOURCE.OFFICIAL)}
+            onClick={() => handleSourceChange(RECIPE_SOURCE.OFFICIAL)}
             className={`rounded-full px-4 py-1 transition ${
               activeSource === RECIPE_SOURCE.OFFICIAL
                 ? "bg-white shadow"
@@ -271,7 +268,7 @@ export default function RecipePage() {
           </button>
 
           <button
-            onClick={() => setActiveSource(RECIPE_SOURCE.USER)}
+            onClick={() => handleSourceChange(RECIPE_SOURCE.USER)}
             className={`rounded-full px-4 py-1 transition ${
               activeSource === RECIPE_SOURCE.USER
                 ? "bg-white shadow"
@@ -287,9 +284,7 @@ export default function RecipePage() {
       {showFilters && <FilterBar filters={filters} onChange={setFilters} />}
 
       {/* CONTENT */}
-      {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
-      ) : visible.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="text-center text-gray-400">No recipes found.</p>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
