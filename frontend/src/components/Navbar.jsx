@@ -22,7 +22,7 @@ export default function Navbar() {
             Recipes
           </NavLink>
           <NavLink to="/my-recipes" className={linkClass}>
-            My Recipe
+            My Recipes
           </NavLink>
           <NavLink to="/create" className={linkClass}>
             Create Recipe
