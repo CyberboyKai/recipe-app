@@ -5,10 +5,10 @@ import useAuth from "../hooks/useAuth.js";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { currentUser, isAdmin, isAuthLoading, logout, userProfile } = useAuth();
+  const { currentUser, isAdmin, isAuthLoading, logout } = useAuth();
 
   const linkClass = ({ isActive }) =>
-    `rounded-md px-3 py-1.5 text-xs font-medium transition ${
+    `rounded-md px-4 py-2 text-xs font-medium transition ${
       isActive ? "bg-gray-100 text-black" : "text-gray-600 hover:text-black"
     }`;
 
@@ -21,26 +21,21 @@ export default function Navbar() {
     closeMenu();
   };
 
-  const userLabel = userProfile?.displayName || currentUser?.email;
-
   const authControls = (
     <>
       {isAuthLoading ? null : currentUser ? (
-        <>
-          <span className="text-xs font-medium text-gray-600">{userLabel}</span>
-          <button
-            className="rounded-md bg-black px-4 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
-            onClick={handleLogout}
-            type="button"
-          >
-            Logout
-          </button>
-        </>
+        <button
+          className="rounded-md bg-black px-5 py-2 text-xs font-medium text-white hover:bg-gray-800"
+          onClick={handleLogout}
+          type="button"
+        >
+          Logout
+        </button>
       ) : (
         <>
           <NavLink
             to="/login"
-            className="rounded-md border border-gray-300 bg-gray-50 px-4 py-1.5 text-xs font-medium hover:bg-gray-100"
+            className="rounded-md border border-gray-300 bg-gray-50 px-5 py-2 text-xs font-medium hover:bg-gray-100"
             onClick={closeMenu}
           >
             Sign in
@@ -48,7 +43,7 @@ export default function Navbar() {
 
           <NavLink
             to="/signup"
-            className="rounded-md bg-black px-4 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
+            className="rounded-md bg-black px-5 py-2 text-xs font-medium text-white hover:bg-gray-800"
             onClick={closeMenu}
           >
             Register
@@ -60,7 +55,7 @@ export default function Navbar() {
 
   return (
     <nav className="w-full border-b bg-white">
-      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-6 px-4 py-5">
+      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-8 px-4 py-5">
         
         {/* Logo */}
         <NavLink to="/" className="brand-logo text-lg text-gray-950">
@@ -68,7 +63,7 @@ export default function Navbar() {
         </NavLink>
 
         {/* DESKTOP LINKS */}
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-5 md:flex">
           <NavLink to="/" className={linkClass}>Home</NavLink>
           <NavLink to="/recipes" className={linkClass}>Recipes</NavLink>
           <NavLink to="/my-recipes" className={linkClass}>My Recipes</NavLink>
@@ -77,21 +72,8 @@ export default function Navbar() {
         </div>
 
         {/* DESKTOP AUTH */}
-        <div className="hidden md:flex items-center gap-2">
-          {isAuthLoading ? null : currentUser ? (
-            <>
-              <span className="text-xs font-medium text-gray-600">{userLabel}</span>
-              <button
-                className="rounded-md bg-black px-4 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
-                onClick={handleLogout}
-                type="button"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            authControls
-          )}
+        <div className="hidden items-center gap-3 md:flex">
+          {authControls}
         </div>
 
         {/* MOBILE MENU ICON */}
