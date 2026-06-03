@@ -25,7 +25,7 @@ export default function Navbar() {
           <NavLink to="/my-recipes" className={linkClass}>My Recipes</NavLink>
           <NavLink to="/create" className={linkClass}>Create Recipe</NavLink>
           
-          {/* Your New Desktop Links! */}
+          {/* Your Feature Links */}
           <NavLink to="/admin" className={linkClass}>Admin</NavLink>
           <NavLink to="/chat" className={linkClass}>Chatbot</NavLink>
         </div>
@@ -52,7 +52,6 @@ export default function Navbar() {
           onClick={() => setMenuOpen((prev) => !prev)}
           className="md:hidden flex flex-col justify-center gap-1"
         >
-          {/* makeshift hamburger icon */}
           <span className="h-0.5 w-6 bg-black"></span>
           <span className="h-0.5 w-6 bg-black"></span>
           <span className="h-0.5 w-6 bg-black"></span>
@@ -63,26 +62,14 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden border-t px-4 pb-4">
           <div className="flex flex-col gap-2 pt-3">
-            <NavLink onClick={() => setMenuOpen(false)} to="/" className={linkClass}>
-              Home
-            </NavLink>
-            <NavLink onClick={() => setMenuOpen(false)} to="/recipes" className={linkClass}>
-              Recipes
-            </NavLink>
-            <NavLink onClick={() => setMenuOpen(false)} to="/my-recipes" className={linkClass}>
-              My Recipes
-            </NavLink>
-            <NavLink onClick={() => setMenuOpen(false)} to="/create" className={linkClass}>
-              Create Recipe
-            </NavLink>
-
-            {/* Your New Mobile Links! (Notice they also close the menu when clicked) */}
-            <NavLink onClick={() => setMenuOpen(false)} to="/admin" className={linkClass}>
-              Admin
-            </NavLink>
-            <NavLink onClick={() => setMenuOpen(false)} to="/chat" className={linkClass}>
-              Chatbot
-            </NavLink>
+            <NavLink onClick={() => setMenuOpen(false)} to="/" className={linkClass}>Home</NavLink>
+            <NavLink onClick={() => setMenuOpen(false)} to="/recipes" className={linkClass}>Recipes</NavLink>
+            <NavLink onClick={() => setMenuOpen(false)} to="/my-recipes" className={linkClass}>My Recipes</NavLink>
+            <NavLink onClick={() => setMenuOpen(false)} to="/create" className={linkClass}>Create Recipe</NavLink>
+            
+            {/* Your Feature Links for Mobile */}
+            <NavLink onClick={() => setMenuOpen(false)} to="/admin" className={linkClass}>Admin</NavLink>
+            <NavLink onClick={() => setMenuOpen(false)} to="/chat" className={linkClass}>Chatbot</NavLink>
 
             <div className="mt-3 flex flex-col gap-2">
               <NavLink
