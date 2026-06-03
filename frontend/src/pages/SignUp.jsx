@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import AuthForm from '../components/AuthForm.jsx';
+import useAuth from '../hooks/useAuth.js';
 
 const signUpFields = [
   {
@@ -26,7 +29,36 @@ const signUpFields = [
   },
 ];
 
+const getSignUpErrorMessage = (errorCode) => {
+  const messages = {
+    'auth/email-already-in-use': 'An account with this email already exists.',
+    'auth/invalid-email': 'Please enter a valid email address.',
+    'auth/weak-password': 'Password should be at least 6 characters.',
+  };
+
+  return messages[errorCode] || 'Unable to create account. Please try again.';
+};
+
 const SignUp = () => {
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignUp = async ({ email, name, password }) => {
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      await signUp({ email, name, password });
+      navigate('/', { replace: true });
+    } catch (authError) {
+      setError(getSignUpErrorMessage(authError.code));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="auth-page">
       <section className="auth-panel" aria-labelledby="signup-title">
@@ -39,7 +71,13 @@ const SignUp = () => {
           <p>Start saving favorites and sharing recipes with the team.</p>
         </div>
 
-        <AuthForm fields={signUpFields} mode="signup" />
+        <AuthForm
+          error={error}
+          fields={signUpFields}
+          isSubmitting={isSubmitting}
+          mode="signup"
+          onSubmit={handleSignUp}
+        />
       </section>
     </main>
   );
