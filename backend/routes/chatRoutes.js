@@ -1,10 +1,12 @@
 import express from 'express';
 import OpenAI from 'openai';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 
-dotenv.config();
 const router = express.Router();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, 
+});
 
 router.post('/', async (req, res) => {
   try {
@@ -13,6 +15,7 @@ router.post('/', async (req, res) => {
       model: "gpt-3.5-turbo",
       messages: messages,
     });
+    
     res.json(completion.choices[0].message);
   } catch (error) {
     console.error("OpenAI Error:", error);
