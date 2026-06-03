@@ -6,12 +6,14 @@ const loginFields = [
   {
     id: 'email',
     label: 'Email',
+    autoComplete: 'email',
     placeholder: 'name@example.com',
     type: 'email',
   },
   {
     id: 'password',
     label: 'Password',
+    autoComplete: 'current-password',
     placeholder: 'Enter your password',
     type: 'password',
   },

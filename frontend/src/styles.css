@@ -4,10 +4,11 @@
 
 body {
   margin: 0;
-  background: #f7f4ef;
+  background: #f4f7f2;
   color: #171717;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
+  line-height: 1.5;
 }
 
 a {
@@ -22,6 +23,7 @@ input {
 .app-shell {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
+  padding-bottom: 48px;
 }
 
 .site-header {
@@ -75,7 +77,17 @@ input {
   min-height: 40px;
   padding: 0 18px;
   text-decoration: none;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
   white-space: nowrap;
+}
+
+.button:hover {
+  box-shadow: 0 10px 22px rgba(42, 35, 25, 0.12);
+  transform: translateY(-1px);
 }
 
 .button.ghost {
@@ -93,6 +105,10 @@ input {
   color: #141414;
 }
 
+.button.primary:hover {
+  background: #ffad29;
+}
+
 .button.compact {
   min-height: 44px;
   min-width: 112px;
@@ -105,17 +121,25 @@ input {
 .hero-section {
   align-items: center;
   background: #ffffff;
+  border: 1px solid #edf0e8;
   border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(42, 55, 38, 0.08);
   display: grid;
   gap: 40px;
   grid-template-columns: minmax(280px, 0.92fr) minmax(360px, 1.08fr);
   min-height: 560px;
+  margin-top: 8px;
   overflow: hidden;
   padding: 64px;
 }
 
 .hero-copy {
   max-width: 480px;
+}
+
+.hero-copy p:not(.eyebrow) {
+  margin: 22px 0 28px;
+  max-width: 430px;
 }
 
 .eyebrow {
@@ -149,6 +173,7 @@ input {
 .hero-visual img {
   aspect-ratio: 1;
   border-radius: 50%;
+  box-shadow: 0 34px 80px rgba(32, 44, 28, 0.14);
   display: block;
   height: auto;
   margin-left: auto;
@@ -157,7 +182,7 @@ input {
 }
 
 .review-card {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid #eee8df;
   border-radius: 8px;
   box-shadow: 0 20px 45px rgba(40, 32, 20, 0.16);
@@ -190,12 +215,26 @@ input {
 }
 
 .review-card span {
+  align-items: center;
+  display: flex;
   font-size: 13px;
   font-weight: 800;
+  gap: 8px;
+}
+
+.review-card span::before {
+  background: #153f2f;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(42, 35, 25, 0.18);
+  content: "";
+  height: 22px;
+  width: 22px;
 }
 
 .recipes-section {
   background: #ffffff;
+  border: 1px solid #edf0e8;
   border-radius: 8px;
   margin: 24px 0 48px;
   padding: 56px 64px 64px;
@@ -231,17 +270,30 @@ input {
   border-radius: 8px;
   box-shadow: 0 16px 36px rgba(42, 35, 25, 0.08);
   overflow: hidden;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.recipe-card:hover {
+  box-shadow: 0 22px 48px rgba(42, 35, 25, 0.14);
+  transform: translateY(-4px);
 }
 
 .recipe-card img {
   aspect-ratio: 1.62;
   display: block;
   object-fit: cover;
+  transition: transform 220ms ease;
   width: 100%;
 }
 
+.recipe-card:hover img {
+  transform: scale(1.03);
+}
+
 .recipe-meta {
-  background: #f8fbf3;
+  background: #f7fbf3;
   color: #0b7130;
   display: flex;
   flex-wrap: wrap;
@@ -249,6 +301,20 @@ input {
   font-size: 13px;
   font-weight: 800;
   padding: 10px 16px;
+}
+
+.recipe-meta span {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.recipe-meta span::before {
+  background: #0b7130;
+  border-radius: 50%;
+  content: "";
+  height: 7px;
+  width: 7px;
 }
 
 .recipe-body {
@@ -280,6 +346,7 @@ input {
 
 .auth-panel {
   background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 8px;
   box-shadow: 0 24px 70px rgba(42, 35, 25, 0.18);
   margin: 0 auto;
@@ -315,6 +382,10 @@ input {
   border-radius: 8px;
   min-height: 48px;
   padding: 0 14px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    outline-color 160ms ease;
 }
 
 .form-field input:focus {

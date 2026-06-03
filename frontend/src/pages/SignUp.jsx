@@ -6,18 +6,21 @@ const signUpFields = [
   {
     id: 'name',
     label: 'Name',
+    autoComplete: 'name',
     placeholder: 'Your name',
     type: 'text',
   },
   {
     id: 'email',
     label: 'Email',
+    autoComplete: 'email',
     placeholder: 'name@example.com',
     type: 'email',
   },
   {
     id: 'password',
     label: 'Password',
+    autoComplete: 'new-password',
     placeholder: 'Create a password',
     type: 'password',
   },

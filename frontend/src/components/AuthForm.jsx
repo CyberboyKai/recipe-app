@@ -13,9 +13,11 @@ const AuthForm = ({ fields, mode }) => {
         <div className="form-field" key={field.id}>
           <label htmlFor={field.id}>{field.label}</label>
           <input
+            autoComplete={field.autoComplete}
             id={field.id}
             name={field.id}
             placeholder={field.placeholder}
+            required
             type={field.type}
           />
         </div>
