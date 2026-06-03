@@ -12,7 +12,7 @@ export function SpoonacularProvider({ children }) {
     return (results || []).map((recipe) => ({
       ...recipe,
       image: recipe.image ?? null,
-      timeMinutes: recipe.timeMinutes ?? recipe.readyInMinutes ?? 0,
+      readyInMinutes: recipe.readyInMinutes ?? 0,
       source: recipe.source ?? "official",
       rating: recipe.rating ?? 0,
       difficulty: recipe.difficulty ?? 0,
