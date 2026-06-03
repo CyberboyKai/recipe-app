@@ -1,10 +1,9 @@
-import { createContext, useContext, useState, useRef } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const SpoonacularContext = createContext(null);
 
 // set vars to avoid double api calls
 let isFetchingRandom = false;
-let isFetchingDetail = false;
 
 export function SpoonacularProvider({ children }) {
   const [recipes, setRecipes] = useState(null);
