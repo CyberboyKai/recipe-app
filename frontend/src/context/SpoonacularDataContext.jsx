@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 
-const SpoonacularContext = createContext(null);
+export const SpoonacularContext = createContext(null);
 
 // set vars to avoid double api calls
 let isFetchingRandom = false;
@@ -38,7 +38,7 @@ export function SpoonacularProvider({ children }) {
           const randomData = await randomRes.json();
           setRecipes(normalizeRecipes(randomData.results));
         } finally {
-          isFetchingRandom.current = false;
+          isFetchingRandom = false;
         }
       }
 
@@ -85,5 +85,3 @@ export function SpoonacularProvider({ children }) {
     </SpoonacularContext.Provider>
   );
 }
-
-export const useSpoonacularData = () => useContext(SpoonacularContext);
