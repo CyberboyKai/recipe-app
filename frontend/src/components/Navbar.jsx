@@ -9,7 +9,7 @@ export default function Navbar() {
   return (
     <nav className="w-full border-b bg-white">
       <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-6 px-4 py-5">
-        <NavLink to="/" className="text-lg font-bold text-gray-950">
+        <NavLink to="/" className="brand-logo text-lg text-gray-950">
           RECIPE-APP
         </NavLink>
 

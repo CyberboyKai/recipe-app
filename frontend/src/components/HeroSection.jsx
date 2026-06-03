@@ -7,12 +7,14 @@ const HeroSection = ({ reviews }) => {
   return (
     <section className="hero-section" aria-labelledby="hero-title">
       <div className="hero-copy">
-        <p className="eyebrow">Fresh ideas for every table</p>
-        <h1 id="hero-title">Easy recipes for any occasion</h1>
-        <p>
-          Discover simple meals, save your favorites, and share new recipes with
-          the team.
-        </p>
+        <div className="hero-text">
+          <p className="eyebrow">Fresh ideas for every table</p>
+          <h1 id="hero-title">Easy recipes for any occasion</h1>
+          <p>
+            Discover simple meals, save your favorites, and share new recipes with
+            the team.
+          </p>
+        </div>
         <Link className="button primary" to="/login">
           Start cooking
         </Link>

@@ -42,6 +42,13 @@ input {
   text-decoration: none;
 }
 
+.brand-logo {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
 .site-nav,
 .header-actions {
   display: flex;
@@ -101,12 +108,12 @@ input {
 }
 
 .button.primary {
-  background: #f6a11a;
-  color: #141414;
+  background: #145764;
+  color: #ffffff;
 }
 
 .button.primary:hover {
-  background: #ffad29;
+  background: #0f4651;
 }
 
 .button.compact {
@@ -125,35 +132,46 @@ input {
   border-radius: 8px;
   box-shadow: 0 24px 70px rgba(42, 55, 38, 0.08);
   display: grid;
-  gap: 40px;
-  grid-template-columns: minmax(280px, 0.92fr) minmax(360px, 1.08fr);
-  min-height: 560px;
+  gap: 32px;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr);
+  min-height: 520px;
   margin-top: 8px;
   overflow: hidden;
-  padding: 64px;
+  padding: 56px 56px 60px;
 }
 
 .hero-copy {
-  max-width: 480px;
+  max-width: 560px;
+}
+
+.hero-text {
+  transform: translateY(-20px);
 }
 
 .hero-copy p:not(.eyebrow) {
-  margin: 22px 0 28px;
+  margin: 24px 0 30px;
   max-width: 430px;
 }
 
 .eyebrow {
-  color: #127333;
+  color: #171717;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0 0 12px;
   text-transform: uppercase;
 }
 
-.hero-copy h1,
+.hero-copy h1 {
+  font-size: clamp(44px, 4.5vw, 62px);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.16;
+  margin: 0;
+}
+
 .auth-heading h1 {
   font-size: clamp(38px, 6vw, 68px);
-  line-height: 1.02;
+  line-height: 1.04;
   margin: 0;
 }
 
@@ -166,8 +184,9 @@ input {
 }
 
 .hero-visual {
-  min-height: 430px;
+  min-height: 460px;
   position: relative;
+  transform: translateX(32px);
 }
 
 .hero-visual img {
@@ -178,7 +197,7 @@ input {
   height: auto;
   margin-left: auto;
   object-fit: contain;
-  width: min(100%, 520px);
+  width: min(100%, 560px);
 }
 
 .review-card {
@@ -186,19 +205,19 @@ input {
   border: 1px solid #eee8df;
   border-radius: 8px;
   box-shadow: 0 20px 45px rgba(40, 32, 20, 0.16);
-  max-width: 230px;
-  padding: 16px;
+  max-width: 220px;
+  padding: 14px;
   position: absolute;
 }
 
 .review-card-left {
-  bottom: 48px;
-  left: 0;
+  bottom: 70px;
+  left: 52px;
 }
 
 .review-card-right {
-  right: 32px;
-  top: 190px;
+  right: 10px;
+  top: 118px;
 }
 
 .stars {
@@ -209,8 +228,8 @@ input {
 
 .review-card p {
   color: #4a4742;
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.48;
   margin: 0 0 12px;
 }
 
@@ -250,6 +269,7 @@ input {
 
 .section-heading h2 {
   font-size: clamp(30px, 4vw, 44px);
+  font-weight: 800;
   line-height: 1.1;
   margin: 0 0 6px;
 }
@@ -420,6 +440,7 @@ input {
 
   .hero-visual {
     min-height: 360px;
+    transform: none;
   }
 
   .recipe-grid {
@@ -439,6 +460,10 @@ input {
 
   .hero-copy h1 {
     font-size: 40px;
+  }
+
+  .hero-text {
+    transform: none;
   }
 
   .hero-visual {
