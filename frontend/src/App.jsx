@@ -1,24 +1,28 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import ChatPage from './pages/ChatPage.jsx';
+import Home from './pages/Home.jsx';
+import Login from './pages/Login.jsx';
+import NotFound from './pages/NotFound.jsx';
+import Recipes from './pages/Recipes.jsx';
+import SignUp from './pages/SignUp.jsx';
 
-function App() {
+const App = () => {
   return (
-    <>
-      {/* Navigation Bar */}
-      <nav style={{ padding: '20px', backgroundColor: '#f0f0f0', marginBottom: '20px' }}>
-        <Link to="/admin" style={{ marginRight: '20px', fontWeight: 'bold' }}>Admin Dashboard</Link>
-        <Link to="/chat" style={{ fontWeight: 'bold' }}>Recipe Chatbot</Link>
-      </nav>
+    <div className="min-h-screen bg-white">
+      <Navbar />
 
-      {/* Where the pages actually render */}
-      <div style={{ padding: '20px' }}>
-        <Routes>
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-        </Routes>
-      </div>
-    </>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/recipes" element={<Recipes />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   );
 }
 
