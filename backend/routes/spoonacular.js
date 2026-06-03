@@ -16,6 +16,8 @@ router.get("/recipes/random", async (req, res) => {
     url.searchParams.append("number", 18);
     url.searchParams.append("includeNutrition", "false");
 
+    console.log("Calling Spoonacular:", url.toString());
+
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -34,7 +36,7 @@ router.get("/recipes/random", async (req, res) => {
         id: recipe.id,
         title: recipe.title,
         image: recipe.image ?? null,
-        timeMinutes: recipe.readyInMinutes ?? 0,
+        readyInMinutes: recipe.readyInMinutes ?? 0,
         source: "official",
         rating: 0,
         difficulty: 0,
@@ -121,6 +123,8 @@ router.get("/recipe/:id", async (req, res) => {
     url.searchParams.append("includeNutrition", "false");
     url.searchParams.append("addWinePairing", "false");
     url.searchParams.append("addTasteData", "false");
+
+    console.log("Calling Spoonacular:", url.toString());
 
     const response = await fetch(url);
 
