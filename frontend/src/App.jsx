@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 
 // Components & Context
 import Navbar from './components/Navbar.jsx';
-import RecipeChatbot from './component/RecipeChatbot.jsx';
+import RecipeChatbot from './components/RecipeChatbot.jsx';
 import { ChatProvider } from './context/ChatContext';
 
 // Pages

@@ -13,9 +13,9 @@ export default function Navbar() {
     <nav className="w-full border-b bg-white">
       <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-6 px-4 py-5">
         
-        {/* Logo */}
-        <NavLink to="/" className="brand-logo text-lg text-gray-950">
-          RECIPE-APP
+        {/* Logo - Updated to match Figma (CamelCase and bold) */}
+        <NavLink to="/" className="brand-logo text-lg font-bold text-gray-950">
+          RecipeApp
         </NavLink>
 
         {/* DESKTOP LINKS */}
@@ -24,6 +24,10 @@ export default function Navbar() {
           <NavLink to="/recipes" className={linkClass}>Recipes</NavLink>
           <NavLink to="/my-recipes" className={linkClass}>My Recipes</NavLink>
           <NavLink to="/create" className={linkClass}>Create Recipe</NavLink>
+          
+          {/* Your New Desktop Links! */}
+          <NavLink to="/admin" className={linkClass}>Admin</NavLink>
+          <NavLink to="/chat" className={linkClass}>Chatbot</NavLink>
         </div>
 
         {/* DESKTOP AUTH */}
@@ -70,6 +74,14 @@ export default function Navbar() {
             </NavLink>
             <NavLink onClick={() => setMenuOpen(false)} to="/create" className={linkClass}>
               Create Recipe
+            </NavLink>
+
+            {/* Your New Mobile Links! (Notice they also close the menu when clicked) */}
+            <NavLink onClick={() => setMenuOpen(false)} to="/admin" className={linkClass}>
+              Admin
+            </NavLink>
+            <NavLink onClick={() => setMenuOpen(false)} to="/chat" className={linkClass}>
+              Chatbot
             </NavLink>
 
             <div className="mt-3 flex flex-col gap-2">
