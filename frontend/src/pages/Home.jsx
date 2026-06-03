@@ -1,5 +1,17 @@
+import HeroSection from '../components/HeroSection.jsx';
+import RecipeSection from '../components/RecipeSection.jsx';
+import { featuredRecipes } from '../data/recipes.js';
+import { heroReviews } from '../data/reviews.js';
+
 const Home = () => {
-  return <h1>RECIPE-APP</h1>;
+  return (
+    <div className="app-shell">
+      <main>
+        <HeroSection reviews={heroReviews} />
+        <RecipeSection recipes={featuredRecipes} />
+      </main>
+    </div>
+  );
 };
 
 export default Home;
