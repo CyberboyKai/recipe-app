@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import saladImage from '../assets/salad.png';
 import ReviewCard from './ReviewCard.jsx';
 
 const HeroSection = ({ reviews }) => {
@@ -19,8 +20,8 @@ const HeroSection = ({ reviews }) => {
 
       <div className="hero-visual" aria-label="Featured meal">
         <img
-          src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=900&q=80"
-          alt="A colorful healthy meal on a plate"
+          src={saladImage}
+          alt="Avocado toast with egg on a plate"
         />
         {reviews.map((review) => (
           <ReviewCard
