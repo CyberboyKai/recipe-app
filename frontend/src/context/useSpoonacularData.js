@@ -1,4 +1,4 @@
 import { useContext } from 'react';
-import { SpoonacularContext } from './SpoonacularDataContext';
+import { SpoonacularContext } from './SpoonacularContext';
 
 export const useSpoonacularData = () => useContext(SpoonacularContext);

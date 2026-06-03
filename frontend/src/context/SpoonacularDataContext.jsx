@@ -1,6 +1,5 @@
-import { createContext, useContext, useState } from 'react';
-
-export const SpoonacularContext = createContext(null);
+import { useState } from 'react';
+import { SpoonacularContext } from './SpoonacularContext';
 
 // set vars to avoid double api calls
 let isFetchingRandom = false;
