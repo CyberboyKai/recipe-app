@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 // Components & Context
 import Navbar from './components/Navbar.jsx';
 import RecipeChatbot from './component/RecipeChatbot.jsx';
-import { ChatProvider } from './context/ChatContext';
+import { ChatProvider } from './context/ChatContext.jsx';
 
 // Pages
 import AdminPage from './pages/AdminPage.jsx';
