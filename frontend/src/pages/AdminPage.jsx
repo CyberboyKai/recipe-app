@@ -12,14 +12,14 @@ function AdminPage() {
 
   useEffect(() => {
     const fetchPendingRecipes = async () => {
-      try { // Added missing try block
+      try { 
         const response = await axios.get('/api/admin/pending');
-        setPendingRecipes(response.data); // Added saving the data!
+        setPendingRecipes(response.data); 
       } catch (err) {
         console.error('Error fetching recipes:', err);
         setPendingRecipes([]);
         setError('Failed to load pending recipes. Please try again later.');
-      } finally { // Fixed bracket formatting
+      } finally { 
         setIsLoading(false);
       }
     };
@@ -28,7 +28,6 @@ function AdminPage() {
 
   const handleApprove = async (recipeId) => {
     try {
-      // Removed hardcoded localhost:5000
       await axios.put(`/api/admin/approve/${recipeId}`);
       setPendingRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.id !== recipeId));      
       setSelectedRecipe(null); 
@@ -41,7 +40,7 @@ function AdminPage() {
   const confirmReject = async () => {
     if (!recipeToReject) return;
     
-    try { // Added missing try block
+    try { 
       await axios.delete(`/api/admin/reject/${recipeToReject.id}`);
       setPendingRecipes((prev) => prev.filter((recipe) => recipe.id !== recipeToReject.id));
       

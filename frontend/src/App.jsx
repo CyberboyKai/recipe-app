@@ -1,3 +1,21 @@
+import { Route, Routes } from 'react-router-dom';
+
+import AdminRoute from './components/AdminRoute.jsx';
+import AuthProvider from './context/AuthProvider.jsx';
+import Navbar from './components/Navbar.jsx';
+import RecipeChatbot from './components/RecipeChatbot.jsx';
+import { ChatProvider } from './context/ChatContext.jsx';
+
+import AdminPage from './pages/AdminPage.jsx';
+import ChatPage from './pages/ChatPage.jsx';
+import Home from './pages/Home.jsx';
+import Login from './pages/Login.jsx';
+import MyRecipes from './pages/MyRecipes.jsx';
+import NotFound from './pages/NotFound.jsx';
+import Recipes from './pages/Recipes.jsx';
+import SignUp from './pages/SignUp.jsx';
+import Unauthorized from './pages/Unauthorized.jsx';
+
 const App = () => {
   return (
     <AuthProvider>
@@ -30,3 +48,5 @@ const App = () => {
     </AuthProvider>
   );
 };
+
+export default App;
