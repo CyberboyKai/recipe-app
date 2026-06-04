@@ -175,7 +175,14 @@ export default function RecipePage() {
   }
 
   // TODO: save recipe in firebase for logged in user
+  const [savedIds, setSavedIds] = useState(new Set());
+
   function handleSave(id) {
+    setSavedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   }
 
   return (
@@ -248,7 +255,7 @@ export default function RecipePage() {
           {visible.map((recipe) => (
             <RecipeCard
               key={recipe.id}
-              recipe={recipe}
+              recipe={{...recipe, saved: savedIds.has(recipe.id)}}
               onSave={handleSave}
             />
           ))}
