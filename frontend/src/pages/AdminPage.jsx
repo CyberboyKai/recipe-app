@@ -13,9 +13,7 @@ function AdminPage() {
 
   useEffect(() => {
     const fetchPendingRecipes = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/admin/pending');
-        setPendingRecipes(response.data);
+        const response = await axios.get('/api/admin/pending');
       } catch (err) {
         console.error('Error fetching recipes:', err);
         setPendingRecipes([]);
