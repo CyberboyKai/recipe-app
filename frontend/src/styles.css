@@ -416,6 +416,45 @@ input {
   text-align: center;
 }
 
+.my-recipe-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-recipe-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.my-recipes-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.my-recipes-tab {
+  background: #f4f1ec;
+  border: 1px solid #d5d0c8;
+  border-radius: 20px;
+  color: #252525;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 18px;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.my-recipes-tab.active {
+  background: #171717;
+  border-color: #171717;
+  color: #ffffff;
+}
+
+.my-recipes-tab:hover:not(.active) {
+  background: #e8e4dc;
+}
+
 @media (max-width: 860px) {
   .site-header {
     grid-template-columns: 1fr;
