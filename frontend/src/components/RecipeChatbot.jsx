@@ -39,6 +39,7 @@ function RecipeChatbot() {
 
           <form className="chat-input-area" onSubmit={onSubmit} style={{ display: 'flex', padding: '10px', borderTop: '1px solid #eee' }}>
             <input
+              className="chat-input"
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -46,15 +47,23 @@ function RecipeChatbot() {
               style={{ flex: 1, padding: '8px 12px', border: '1px solid #ccc', borderRadius: '8px', marginRight: '8px' }}
               disabled={isLoading}
             />
-            <button type="submit" disabled={isLoading} style={{ backgroundColor: '#000', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>
+            <button
+              className="chat-send-btn"
+              type="submit"
+              disabled={isLoading}
+              style={{ backgroundColor: '#000', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}
+            >
               {isLoading ? '...' : 'Send'}
             </button>
+          </form>
           </form>
         </div>
       )}
 
       {/* Floating Toggle Button */}
-      <button 
+      <button
+        className="chatbot-toggle-btn"
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         style={{ float: 'right', padding: '12px 24px', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '24px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
       >

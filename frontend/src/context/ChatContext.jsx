@@ -9,28 +9,49 @@ export const ChatProvider = ({ children }) => {
 
   const { officialRecipes } = useContext(RecipesContext) || {};
 
-  const handleSend = async (input) => {
-    const newMessages = [...messages, { role: 'user', content: input }];
+  const handleSend = async (rawInput) => {
+    const content = rawInput.trim();
+    if (!content || isLoading) return;
+
+    const newMessages = [...messages, { role: 'user', content }];
     setMessages(newMessages);
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           messages: newMessages,
-          recipes: officialRecipes
+          recipes: officialRecipes,
         }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Chat request failed (${response.status})`);
+      }
+
       const data = await response.json();
+
+      if (!data?.role || typeof data.content !== 'string') {
+        throw new Error('Invalid chat response payload');
+      }
+
       setMessages([...newMessages, data]);
     } catch (error) {
-      console.error("Chat error:", error);
+      console.error('Chat error:', error);
+      setMessages([
+        ...newMessages,
+        {
+          role: 'assistant',
+          content: 'Sorry—something went wrong while generating a response. Please try again.',
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
+  };
   };
 
   return (

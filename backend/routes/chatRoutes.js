@@ -10,13 +10,18 @@ const openai = new OpenAI({
 
 router.post('/', async (req, res) => {
   try {
-    const { messages, recipes } = req.body;
-    
-    const recipeArray = recipes?.results || recipes || [];
-    
-    const slimRecipes = recipeArray.map(recipe => ({
+    const { messages = [], recipes } = req.body ?? {};
+
+    const safeMessages = Array.isArray(messages) ? messages : [];
+    const recipeArray = Array.isArray(recipes?.results)
+      ? recipes.results
+      : Array.isArray(recipes)
+        ? recipes
+        : [];
+
+    const slimRecipes = recipeArray.map((recipe) => ({
       title: recipe.title,
-      summary: recipe.summary 
+      summary: recipe.summary,
     }));
 
     const systemPrompt = {
@@ -31,8 +36,7 @@ router.post('/', async (req, res) => {
       Use bullet points ('-') for the Ingredients list, and numbered lists ('1.') for the Instructions.`
     };
 
-    const fullMessages = [systemPrompt, ...messages];
-
+    const fullMessages = [systemPrompt, ...safeMessages];
     console.log("Sending this prompt to OpenAI:", JSON.stringify(systemPrompt).substring(0, 500) + "... [TRUNCATED]");
 
     const completion = await openai.chat.completions.create({

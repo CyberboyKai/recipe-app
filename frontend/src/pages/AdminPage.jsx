@@ -13,24 +13,12 @@ function AdminPage() {
 
   useEffect(() => {
     const fetchPendingRecipes = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/admin/pending');
-        setPendingRecipes(response.data);
+        const response = await axios.get('/api/admin/pending');
       } catch (err) {
         console.error('Error fetching recipes:', err);
-        setError('Failed to load pending recipes. Please ensure the backend is running.');
-        
-        // MOCK DATA: Remove once Firebase is connected
-        setPendingRecipes([
-          {
-            id: 1,
-            title: "Spicy Garlic Noodles",
-            author: "ChefKai",
-            ingredients: ["Noodles", "Garlic", "Chili Oil", "Soy Sauce"],
-            instructions: ["Boil noodles.", "Mix sauce.", "Toss together and serve."],
-            published: false
-          }
-        ]);
+        setPendingRecipes([]);
+        setError('Failed to load pending recipes. Please try again later.');
+      }
       } finally {
         setIsLoading(false);
       }
@@ -53,10 +41,8 @@ function AdminPage() {
   const confirmReject = async () => {
     if (!recipeToReject) return;
     
-    try {
-      await axios.delete(`http://localhost:5000/api/admin/reject/${recipeToReject.id}`);
-      setPendingRecipes(pendingRecipes.filter(recipe => recipe.id !== recipeToReject.id));
-      
+      await axios.delete(`/api/admin/reject/${recipeToReject.id}`);
+      setPendingRecipes((prev) => prev.filter((recipe) => recipe.id !== recipeToReject.id));
       // Close all modals
       setRecipeToReject(null);
       setSelectedRecipe(null); 
