@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
+  arrayRemove,
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   query,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -56,14 +59,29 @@ const MyRecipes = () => {
     fetchCreated();
   }, [user]);
 
-  // fetch saved recipes — users/{uid}/savedRecipes subcollection
+  // fetch saved recipes — get array from users/{uid} then fetch each recipe
   useEffect(() => {
     if (!user) return;
     const fetchSaved = async () => {
-      const snapshot = await getDocs(
-        collection(db, 'users', user.uid, 'savedRecipes')
+      const userSnap = await getDoc(doc(db, 'users', user.uid));
+      const savedIds = userSnap.data()?.savedRecipes || [];
+
+      if (savedIds.length === 0) {
+        setSavedRecipes([]);
+        setLoading(false);
+        return;
+      }
+
+      // fetch each recipe by ID
+      const recipePromises = savedIds.map((id) =>
+        getDoc(doc(db, 'recipes', String(id)))
       );
-      setSavedRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const recipeDocs = await Promise.all(recipePromises);
+      setSavedRecipes(
+        recipeDocs
+          .filter((d) => d.exists())
+          .map((d) => ({ id: d.id, ...d.data() }))
+      );
       setLoading(false);
     };
     fetchSaved();
@@ -74,9 +92,12 @@ const MyRecipes = () => {
     setCreatedRecipes((prev) => prev.filter((r) => r.id !== recipeId));
   };
 
-  const handleRemove = async (savedId) => {
-    await deleteDoc(doc(db, 'users', user.uid, 'savedRecipes', savedId));
-    setSavedRecipes((prev) => prev.filter((r) => r.id !== savedId));
+  const handleRemove = async (recipeId) => {
+    // remove the id from the savedRecipes array in users/{uid}
+    await updateDoc(doc(db, 'users', user.uid), {
+      savedRecipes: arrayRemove(Number(recipeId)),
+    });
+    setSavedRecipes((prev) => prev.filter((r) => r.id !== recipeId));
   };
 
   const recipes = activeTab === 'created' ? createdRecipes : savedRecipes;
