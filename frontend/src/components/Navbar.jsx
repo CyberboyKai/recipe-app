@@ -15,12 +15,12 @@ export default function Navbar() {
 
   return (
     <nav className="w-full border-b bg-white">
-      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-5 md:gap-6">
+      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-5 lg:gap-6">
         <NavLink to="/" className="brand-logo text-lg font-bold text-gray-950">
           RecipeApp
         </NavLink>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <NavLink to="/" className={linkClass}>Home</NavLink>
           <NavLink to="/recipes" className={linkClass}>Recipes</NavLink>
           <NavLink to="/my-recipes" className={linkClass}>My Recipes</NavLink>
@@ -29,7 +29,7 @@ export default function Navbar() {
           <NavLink to="/chat" className={linkClass}>Chatbot</NavLink>
         </div>
 
-        <div className="hidden items-center gap-2 sm:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <NavLink
             to="/login"
             className="rounded-md border border-gray-300 bg-gray-50 px-4 py-1.5 text-xs font-medium hover:bg-gray-100"
@@ -48,7 +48,7 @@ export default function Navbar() {
         <button
           aria-expanded={menuOpen}
           aria-label="Toggle navigation menu"
-          className="flex flex-col justify-center gap-1 justify-self-end md:hidden"
+          className="flex flex-col justify-center gap-1 justify-self-end lg:hidden"
           onClick={() => setMenuOpen((prev) => !prev)}
           type="button"
         >
@@ -59,7 +59,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="border-t px-4 pb-4 md:hidden">
+        <div className="border-t px-4 pb-4 lg:hidden">
           <div className="mx-auto flex max-w-6xl flex-col gap-2 pt-3">
             <NavLink onClick={closeMenu} to="/" className={linkClass}>Home</NavLink>
             <NavLink onClick={closeMenu} to="/recipes" className={linkClass}>Recipes</NavLink>
@@ -68,7 +68,7 @@ export default function Navbar() {
             <NavLink onClick={closeMenu} to="/admin" className={linkClass}>Admin</NavLink>
             <NavLink onClick={closeMenu} to="/chat" className={linkClass}>Chatbot</NavLink>
 
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:hidden">
+            <div className="mt-3 grid grid-cols-2 gap-2">
               <NavLink
                 onClick={closeMenu}
                 to="/login"
