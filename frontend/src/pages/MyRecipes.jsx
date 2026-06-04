@@ -37,7 +37,8 @@ const MyRecipes = () => {
   const [activeTab, setActiveTab] = useState('created');
   const [createdRecipes, setCreatedRecipes] = useState([]);
   const [savedRecipes, setSavedRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingCreated, setLoadingCreated] = useState(true);
+  const [loadingSaved, setLoadingSaved] = useState(true);
 
   // redirect to login if not authenticated
   useEffect(() => {
@@ -55,6 +56,7 @@ const MyRecipes = () => {
       );
       const snapshot = await getDocs(q);
       setCreatedRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setLoadingCreated(false);
     };
     fetchCreated();
   }, [user]);
@@ -68,7 +70,7 @@ const MyRecipes = () => {
 
       if (savedIds.length === 0) {
         setSavedRecipes([]);
-        setLoading(false);
+        setLoadingSaved(false);
         return;
       }
 
@@ -82,7 +84,7 @@ const MyRecipes = () => {
           .filter((d) => d.exists())
           .map((d) => ({ id: d.id, ...d.data() }))
       );
-      setLoading(false);
+      setLoadingSaved(false);
     };
     fetchSaved();
   }, [user]);
@@ -101,6 +103,8 @@ const MyRecipes = () => {
   };
 
   const recipes = activeTab === 'created' ? createdRecipes : savedRecipes;
+
+  const loading = activeTab === 'created' ? loadingCreated : loadingSaved;
 
   if (user === undefined || loading) {
     return (
@@ -160,6 +164,20 @@ const MyRecipes = () => {
               {recipes.map((recipe) => (
                 <div key={recipe.id} className="my-recipe-card-wrapper">
                   <RecipeCard recipe={recipe} />
+                  {activeTab === 'created' && (
+                    <span style={{
+                      display: 'inline-block',
+                      marginTop: 6,
+                      padding: '2px 10px',
+                      borderRadius: 99,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: recipe.published ? '#e6f4ea' : '#fff3cd',
+                      color: recipe.published ? '#2d6a4f' : '#856404',
+                    }}>
+                      {recipe.published ? 'Published' : 'Pending Review'}
+                    </span>
+                  )}
                   {activeTab === 'created' ? (
                     <div className="my-recipe-actions">
                       <button
