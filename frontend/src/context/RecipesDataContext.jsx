@@ -106,11 +106,6 @@ export function RecipesProvider({ children }) {
     setActiveSource(source);
   }
 
-  // YOUR FIX: Load the recipes automatically when the app starts
-  useEffect(() => {
-    loadOfficialRecipes();
-    loadUserRecipes();
-  }, []);
 
   return (
     <RecipesContext.Provider
