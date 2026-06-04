@@ -52,10 +52,10 @@ export const ChatProvider = ({ children }) => {
       setIsLoading(false);
     }
   };
-  };
 
   return (
     <ChatContext.Provider value={{ messages, isLoading, handleSend }}>
       {children}
     </ChatContext.Provider>
   );
+}
