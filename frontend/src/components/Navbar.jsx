@@ -1,17 +1,57 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+
+import useAuth from '../hooks/useAuth.js';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { currentUser, isAdmin, isAuthLoading, logout } = useAuth();
 
   const linkClass = ({ isActive }) =>
-    `rounded-md px-3 py-1.5 text-xs font-medium transition ${
-      isActive ? "bg-gray-100 text-black" : "text-gray-600 hover:text-black"
+    `rounded-md px-4 py-2 text-xs font-medium transition ${
+      isActive ? 'bg-gray-100 text-black' : 'text-gray-600 hover:text-black'
     }`;
 
   const closeMenu = () => {
     setMenuOpen(false);
   };
+
+  const handleLogout = async () => {
+    await logout();
+    closeMenu();
+  };
+
+  const authControls = (
+    <>
+      {isAuthLoading ? null : currentUser ? (
+        <button
+          className="rounded-md bg-black px-5 py-2 text-xs font-medium text-white hover:bg-gray-800"
+          onClick={handleLogout}
+          type="button"
+        >
+          Logout
+        </button>
+      ) : (
+        <>
+          <NavLink
+            to="/login"
+            className="rounded-md border border-gray-300 bg-gray-50 px-5 py-2 text-xs font-medium hover:bg-gray-100 text-center"
+            onClick={closeMenu}
+          >
+            Sign in
+          </NavLink>
+
+          <NavLink
+            to="/signup"
+            className="rounded-md bg-black px-5 py-2 text-xs font-medium text-white hover:bg-gray-800 text-center"
+            onClick={closeMenu}
+          >
+            Register
+          </NavLink>
+        </>
+      )}
+    </>
+  );
 
   return (
     <nav className="relative z-50 w-full border-b bg-white">
@@ -20,30 +60,30 @@ export default function Navbar() {
           RecipeApp
         </NavLink>
 
-        <div className="hidden items-center gap-2 xl:flex">
-          <NavLink to="/" className={linkClass}>Home</NavLink>
-          <NavLink to="/recipes" className={linkClass}>Recipes</NavLink>
-          <NavLink to="/my-recipes" className={linkClass}>My Recipes</NavLink>
-          <NavLink to="/create" className={linkClass}>Create Recipe</NavLink>
-          <NavLink to="/admin" className={linkClass}>Admin</NavLink>
-          <NavLink to="/chat" className={linkClass}>Chatbot</NavLink>
+        <div className="hidden items-center gap-5 xl:flex">
+          <NavLink to="/" className={linkClass}>
+            Home
+          </NavLink>
+          <NavLink to="/recipes" className={linkClass}>
+            Recipes
+          </NavLink>
+          <NavLink to="/my-recipes" className={linkClass}>
+            My Recipes
+          </NavLink>
+          <NavLink to="/create" className={linkClass}>
+            Create Recipe
+          </NavLink>
+          <NavLink to="/chat" className={linkClass}>
+            Chatbot
+          </NavLink>
+          {isAdmin && (
+            <NavLink to="/admin" className={linkClass}>
+              Admin
+            </NavLink>
+          )}
         </div>
 
-        <div className="hidden items-center gap-2 xl:flex">
-          <NavLink
-            to="/login"
-            className="rounded-md border border-gray-300 bg-gray-50 px-4 py-1.5 text-xs font-medium hover:bg-gray-100"
-          >
-            Sign in
-          </NavLink>
-
-          <NavLink
-            to="/signup"
-            className="rounded-md bg-black px-4 py-1.5 text-xs font-medium text-white hover:bg-gray-800"
-          >
-            Register
-          </NavLink>
-        </div>
+        <div className="hidden items-center gap-3 xl:flex">{authControls}</div>
 
         <button
           aria-expanded={menuOpen}
@@ -73,30 +113,16 @@ export default function Navbar() {
             <NavLink onClick={closeMenu} to="/create" className={linkClass}>
               Create Recipe
             </NavLink>
-            <NavLink onClick={closeMenu} to="/admin" className={linkClass}>
-              Admin
-            </NavLink>
             <NavLink onClick={closeMenu} to="/chat" className={linkClass}>
               Chatbot
             </NavLink>
-
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <NavLink
-                onClick={closeMenu}
-                to="/login"
-                className="rounded-md border border-gray-300 bg-gray-50 px-4 py-2 text-center text-xs font-medium hover:bg-gray-100"
-              >
-                Sign in
+            {isAdmin && (
+              <NavLink onClick={closeMenu} to="/admin" className={linkClass}>
+                Admin
               </NavLink>
+            )}
 
-              <NavLink
-                onClick={closeMenu}
-                to="/signup"
-                className="rounded-md bg-black px-4 py-2 text-center text-xs font-medium text-white hover:bg-gray-800"
-              >
-                Register
-              </NavLink>
-            </div>
+            <div className="mt-3 flex flex-col gap-2">{authControls}</div>
           </div>
         </div>
       )}
