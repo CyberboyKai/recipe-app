@@ -59,6 +59,10 @@ const CreateRecipePage = () => {
         author: user.displayName || user.email,
         source: 'user',
         published: true,
+        // RecipeCard display fields
+        time: Number(prepTime) + Number(cookTime) || 0,
+        level: Number(healthScore) || 0,
+        image: null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });

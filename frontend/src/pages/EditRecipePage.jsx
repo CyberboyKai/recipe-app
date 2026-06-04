@@ -87,6 +87,9 @@ const EditRecipePage = () => {
         ingredients: ingredients.filter((ing) => ing.name.trim()),
         instructions: instructions.filter((s) => s.trim()),
         published: false,
+        // RecipeCard display fields
+        time: Number(prepTime) + Number(cookTime) || 0,
+        level: Number(healthScore) || 0,
         updatedAt: serverTimestamp(),
       });
       navigate('/my-recipes');
