@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
 import salad from '../assets/salad.png';
+import RecipeCard from '../components/RecipeCard.jsx';
 import ReviewCard from '../components/ReviewCard.jsx';
+import { featuredRecipes } from '../data/recipes.js';
 
 const placeholderReviews = [
   {
@@ -16,8 +18,13 @@ const placeholderReviews = [
   },
 ];
 
+const mockCreated = featuredRecipes;
+const mockSaved = featuredRecipes.slice(0, 3);
+
 const MyRecipes = () => {
   const [activeTab, setActiveTab] = useState('created');
+
+  const recipes = activeTab === 'created' ? mockCreated : mockSaved;
 
   return (
     <div className="app-shell">
@@ -55,6 +62,14 @@ const MyRecipes = () => {
           >
             ✓ Saved
           </button>
+        </div>
+
+        <div className="recipes-section">
+          <div className="recipe-grid">
+            {recipes.map((recipe) => (
+              <RecipeCard key={recipe.title} recipe={recipe} />
+            ))}
+          </div>
         </div>
       </main>
     </div>
