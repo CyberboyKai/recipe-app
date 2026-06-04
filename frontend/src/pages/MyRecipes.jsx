@@ -1,4 +1,6 @@
-import heroDish from '../assets/salad.png';
+import { useState } from 'react';
+
+import salad from '../assets/salad.png';
 import ReviewCard from '../components/ReviewCard.jsx';
 
 const placeholderReviews = [
@@ -15,6 +17,8 @@ const placeholderReviews = [
 ];
 
 const MyRecipes = () => {
+  const [activeTab, setActiveTab] = useState('created');
+
   return (
     <div className="app-shell">
       <main>
@@ -26,7 +30,7 @@ const MyRecipes = () => {
           </div>
 
           <div className="hero-visual" aria-label="Featured dish">
-            <img src={heroDish} alt="Avocado egg bowl with broccoli and toast" />
+            <img src={salad} alt="Avocado egg bowl with broccoli and toast" />
             {placeholderReviews.map((review) => (
               <ReviewCard
                 key={review.name}
@@ -37,6 +41,21 @@ const MyRecipes = () => {
             ))}
           </div>
         </section>
+
+        <div className="my-recipes-tabs">
+          <button
+            className={`my-recipes-tab ${activeTab === 'created' ? 'active' : ''}`}
+            onClick={() => setActiveTab('created')}
+          >
+            ✓ My Recipes (Created)
+          </button>
+          <button
+            className={`my-recipes-tab ${activeTab === 'saved' ? 'active' : ''}`}
+            onClick={() => setActiveTab('saved')}
+          >
+            ✓ Saved
+          </button>
+        </div>
       </main>
     </div>
   );
