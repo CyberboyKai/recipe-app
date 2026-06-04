@@ -57,5 +57,5 @@ export const ChatProvider = ({ children }) => {
     <ChatContext.Provider value={{ messages, isLoading, handleSend }}>
       {children}
     </ChatContext.Provider>
-  );
-}
+  )
+};
