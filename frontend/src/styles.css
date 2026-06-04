@@ -284,6 +284,12 @@ input {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.recipes-status {
+  color: #7d7770;
+  font-size: 0.95rem;
+  margin: 0 0 24px;
+}
+
 .recipe-card {
   background: #ffffff;
   border: 1px solid #f0ece6;
