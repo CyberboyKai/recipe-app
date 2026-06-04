@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { ChatContext } from '../context/ChatContext';
+import ReactMarkdown from 'react-markdown';
 import './ChatPage.css'; 
 
 function ChatPage() {
@@ -21,19 +22,20 @@ function ChatPage() {
 
       <div className="chat-window">
         <div className="message-list">
-          {messages.map((msg, index) => (
-            <div key={index} className={`message-wrapper ${msg.role}`}>
-              <div className={`message-bubble ${msg.role}`}>
-                {msg.content}
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-             <div className="message-wrapper assistant">
-               <div className="message-bubble assistant">Thinking...</div>
-             </div>
-          )}
-        </div>
+       {messages.map((msg, index) => (
+         <div key={index} className={`message-wrapper ${msg.role}`}>
+           <div className={`message-bubble ${msg.role}`}>
+             <ReactMarkdown>{msg.content}</ReactMarkdown>
+
+           </div>
+         </div>
+       ))}
+       {isLoading && (
+          <div className="message-wrapper assistant">
+            <div className="message-bubble assistant">Thinking...</div>
+          </div>
+       )}
+     </div>
 
         <form className="chat-input-area" onSubmit={onSubmit}>
           <input

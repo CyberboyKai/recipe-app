@@ -1,5 +1,5 @@
 import { createContext, useState, useContext } from 'react';
-import { SpoonacularContext } from "./SpoonacularContext.js";
+import { RecipesContext } from './RecipesContext.js';
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
@@ -8,7 +8,7 @@ export const ChatProvider = ({ children }) => {
   
 
   const { officialRecipes } = useContext(RecipesContext) || {};
-  
+
   const handleSend = async (input) => {
     const newMessages = [...messages, { role: 'user', content: input }];
     setMessages(newMessages);
@@ -20,7 +20,7 @@ export const ChatProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           messages: newMessages,
-          recipes: recipes 
+          recipes: officialRecipes
         }),
       });
 
