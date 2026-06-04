@@ -1,10 +1,20 @@
 import { Link } from 'react-router-dom';
 
-const AuthForm = ({ fields, mode }) => {
+const AuthForm = ({
+  error,
+  fields,
+  isSubmitting,
+  mode,
+  onSubmit,
+  successMessage,
+}) => {
   const isSignUp = mode === 'signup';
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const values = Object.fromEntries(new FormData(event.currentTarget));
+
+    onSubmit(values);
   };
 
   return (
@@ -23,8 +33,15 @@ const AuthForm = ({ fields, mode }) => {
         </div>
       ))}
 
-      <button className="button primary full" type="submit">
-        {isSignUp ? 'Create account' : 'Sign in'}
+      {error && <p className="auth-message error">{error}</p>}
+      {successMessage && <p className="auth-message success">{successMessage}</p>}
+
+      <button className="button primary full" disabled={isSubmitting} type="submit">
+        {isSubmitting
+          ? 'Please wait...'
+          : isSignUp
+            ? 'Create account'
+            : 'Sign in'}
       </button>
 
       <p className="auth-note">

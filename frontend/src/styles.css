@@ -385,6 +385,26 @@ input {
   gap: 16px;
 }
 
+.auth-message {
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+.auth-message.error {
+  background: #fff1f0;
+  border: 1px solid #ffd1ce;
+  color: #a9271a;
+}
+
+.auth-message.success {
+  background: #ecf8f2;
+  border: 1px solid #bfe9d2;
+  color: #145764;
+}
+
 .form-field {
   display: grid;
   gap: 8px;
@@ -416,6 +436,32 @@ input {
   text-align: center;
 }
 
+/* --- Your feature/auth-flow styles --- */
+.route-message {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+  min-height: calc(100vh - 74px);
+  padding: 32px;
+  text-align: center;
+}
+
+.route-message h1 {
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 800;
+  line-height: 1.08;
+  margin: 0;
+}
+
+.route-message p {
+  color: #77736d;
+  font-size: 18px;
+  margin: 0;
+}
+
+/* --- Their main branch styles --- */
 .my-recipe-card-wrapper {
   display: flex;
   flex-direction: column;
@@ -454,7 +500,6 @@ input {
 .my-recipes-tab:hover:not(.active) {
   background: #e8e4dc;
 }
-
 @media (max-width: 860px) {
   .site-header {
     grid-template-columns: 1fr;
