@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 
+import { AuthProvider } from './context/AuthContext.jsx';
 import Navbar from './components/Navbar.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
@@ -10,6 +11,7 @@ import SignUp from './pages/SignUp.jsx';
 
 const App = () => {
   return (
+    <AuthProvider>
     <div className="min-h-screen bg-white">
       <Navbar />
 
@@ -22,6 +24,7 @@ const App = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
+    </AuthProvider>
   );
 };
 
