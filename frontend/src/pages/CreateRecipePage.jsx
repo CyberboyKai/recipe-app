@@ -147,10 +147,7 @@ const CreateRecipePage = () => {
             {imagePreview ? (
               <img src={imagePreview} alt="Preview" style={{ maxHeight: 180, borderRadius: 6, objectFit: 'cover' }} />
             ) : (
-              <>
-                <span style={{ fontSize: 32 }}>📷</span>
-                <span style={{ fontSize: 14, color: '#77736d' }}>Click to upload an image</span>
-              </>
+              <span style={{ fontSize: 14, color: '#77736d' }}>Click to upload an image</span>
             )}
             <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
           </label>
