@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase.js';
+import { db } from '../firebase.js';
 import useAuth from '../hooks/useAuth.js';
 
 const emptyIngredient = () => ({ name: '', amount: '' });
@@ -20,8 +19,7 @@ const EditRecipePage = () => {
   const [healthScore, setHealthScore] = useState('');
   const [ingredients, setIngredients] = useState([emptyIngredient()]);
   const [instructions, setInstructions] = useState(['']);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -54,18 +52,11 @@ const EditRecipePage = () => {
       setHealthScore(data.healthScore ?? '');
       setIngredients(data.ingredients?.length ? data.ingredients : [emptyIngredient()]);
       setInstructions(data.instructions?.length ? data.instructions : ['']);
-      if (data.image) setImagePreview(data.image);
+      if (data.image) setImageUrl(data.image);
       setLoading(false);
     };
     fetchRecipe();
   }, [user, id, navigate]);
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
 
   const addIngredient = () => setIngredients((prev) => [...prev, emptyIngredient()]);
   const removeIngredient = (i) => setIngredients((prev) => prev.filter((_, idx) => idx !== i));
@@ -88,13 +79,6 @@ const EditRecipePage = () => {
 
     setSubmitting(true);
     try {
-      let imageUrl = imagePreview;
-      if (imageFile) {
-        const imageRef = ref(storage, `recipes/${user.uid}/${Date.now()}_${imageFile.name}`);
-        await uploadBytes(imageRef, imageFile);
-        imageUrl = await getDownloadURL(imageRef);
-      }
-
       await updateDoc(doc(db, 'recipes', id), {
         title: title.trim(),
         description: description.trim(),
@@ -105,7 +89,7 @@ const EditRecipePage = () => {
         ingredients: ingredients.filter((ing) => ing.name.trim()),
         instructions: instructions.filter((s) => s.trim()),
         published: false,
-        image: imageUrl || null,
+        image: imageUrl.trim() || null,
         // RecipeCard display fields
         time: Number(prepTime) + Number(cookTime) || 0,
         level: Number(healthScore) || 0,
@@ -133,33 +117,18 @@ const EditRecipePage = () => {
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-        {/* Image Upload */}
+        {/* Image URL */}
         <div className="form-field">
-          <label className="form-label">Recipe Image</label>
-          <label style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '2px dashed #d5d0c8',
-            borderRadius: 8,
-            padding: 24,
-            cursor: 'pointer',
-            background: '#fafaf9',
-            gap: 8,
-          }}>
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" style={{ maxHeight: 180, borderRadius: 6, objectFit: 'cover' }} />
-            ) : (
-              <span style={{ fontSize: 14, color: '#77736d' }}>Click to upload an image</span>
-            )}
-            <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
-          </label>
-          {imagePreview && (
-            <button type="button" className="button ghost compact" style={{ alignSelf: 'flex-start', marginTop: 6 }}
-              onClick={() => { setImageFile(null); setImagePreview(null); }}>
-              Remove image
-            </button>
+          <label className="form-label">Recipe Image URL</label>
+          <input
+            className="form-input"
+            type="url"
+            placeholder="https://example.com/image.jpg"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
+          {imageUrl.trim() && (
+            <img src={imageUrl.trim()} alt="Preview" style={{ marginTop: 10, maxHeight: 180, borderRadius: 6, objectFit: 'cover' }} />
           )}
         </div>
 
