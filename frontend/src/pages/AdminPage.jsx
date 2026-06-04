@@ -18,19 +18,9 @@ function AdminPage() {
         setPendingRecipes(response.data);
       } catch (err) {
         console.error('Error fetching recipes:', err);
-        setError('Failed to load pending recipes. Please ensure the backend is running.');
-        
-        // MOCK DATA: Remove once Firebase is connected
-        setPendingRecipes([
-          {
-            id: 1,
-            title: "Spicy Garlic Noodles",
-            author: "ChefKai",
-            ingredients: ["Noodles", "Garlic", "Chili Oil", "Soy Sauce"],
-            instructions: ["Boil noodles.", "Mix sauce.", "Toss together and serve."],
-            published: false
-          }
-        ]);
+        setPendingRecipes([]);
+        setError('Failed to load pending recipes. Please try again later.');
+      }
       } finally {
         setIsLoading(false);
       }
