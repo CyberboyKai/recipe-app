@@ -6,7 +6,7 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 
 import { AuthContext } from './authContext.js';
 import { auth, db } from '../firebase.js';
@@ -19,7 +19,9 @@ const AuthProvider = ({ children }) => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeUser = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
 
       if (!user) {
@@ -28,36 +30,36 @@ const AuthProvider = ({ children }) => {
         return;
       }
 
-      try {
-        const userRef = doc(db, 'users', user.uid);
-        const userSnapshot = await getDoc(userRef);
+      const userRef = doc(db, 'users', user.uid);
 
-        if (userSnapshot.exists()) {
-          setUserProfile({ id: user.uid, ...userSnapshot.data() });
-        } else {
-          const fallbackProfile = {
-            displayName: user.displayName || '',
-            email: user.email,
-            role: defaultUserRole,
-            createdAt: serverTimestamp(),
-          };
+      const snap = await getDoc(userRef);
 
-          await setDoc(userRef, fallbackProfile);
-          setUserProfile({ id: user.uid, ...fallbackProfile });
-        }
-      } catch {
-        setUserProfile({
+      if (!snap.exists()) {
+        const fallbackProfile = {
           displayName: user.displayName || '',
           email: user.email,
-          id: user.uid,
           role: defaultUserRole,
-        });
+          createdAt: serverTimestamp(),
+          savedRecipes: [],
+          createdRecipes: [],
+        };
+
+        await setDoc(userRef, fallbackProfile);
       }
+
+      unsubscribeUser = onSnapshot(userRef, (userSnapshot) => {
+        if (userSnapshot.exists()) {
+          setUserProfile({ id: user.uid, ...userSnapshot.data() });
+        }
+      });
 
       setIsAuthLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeUser) unsubscribeUser();
+    };
   }, []);
 
   const signUp = async ({ name, email, password }) => {
@@ -76,6 +78,8 @@ const AuthProvider = ({ children }) => {
       email: credential.user.email,
       role: defaultUserRole,
       createdAt: serverTimestamp(),
+      savedRecipes: [],
+      createdRecipes: [],
     };
 
     await setDoc(doc(db, 'users', credential.user.uid), userProfileData, {

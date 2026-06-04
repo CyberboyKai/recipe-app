@@ -3,6 +3,7 @@ import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon, PhotoIcon, BookmarkIcon
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 
 import { useRecipesData } from "../context/useRecipesData.js";
+import { useSavedRecipes } from "../hooks/useSavedRecipes";
 
 const RECIPE_SOURCE = {
   OFFICIAL: "official",
@@ -145,6 +146,8 @@ export default function RecipePage() {
     searchRecipes,
   } = useRecipesData();
 
+  const { savedIds, toggleSave } = useSavedRecipes();
+
   const [query, setQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -172,17 +175,6 @@ export default function RecipePage() {
     if (e.key === "Enter") {
       searchRecipes(query, filters);
     }
-  }
-
-  // TODO: save recipe in firebase for logged in user
-  const [savedIds, setSavedIds] = useState(new Set());
-
-  function handleSave(id) {
-    setSavedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
   }
 
   return (
@@ -256,7 +248,7 @@ export default function RecipePage() {
             <RecipeCard
               key={recipe.id}
               recipe={{...recipe, saved: savedIds.has(recipe.id)}}
-              onSave={handleSave}
+              onSave={toggleSave}
             />
           ))}
         </div>
