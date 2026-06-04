@@ -7,8 +7,8 @@ export const ChatProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   
 
-  const { recipes } = useContext(SpoonacularContext) || {}; 
-
+  const { officialRecipes } = useContext(RecipesContext) || {};
+  
   const handleSend = async (input) => {
     const newMessages = [...messages, { role: 'user', content: input }];
     setMessages(newMessages);

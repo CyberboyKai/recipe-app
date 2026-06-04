@@ -4,73 +4,7 @@ import { collection, doc, setDoc, getDocs, deleteDoc, orderBy, query, limit, ser
 
 const router = express.Router();
 
-// GET random recipes -- called only when recipes collection is empty
-router.get("/recipes/random", async (req, res) => {
-  try {
-    if (!process.env.SPOONACULAR_API_KEY) {
-      return res.status(500).json({ error: "SPOONACULAR_API_KEY is not defined" });
-    }
-
-    const url = new URL("https://api.spoonacular.com/recipes/random");
-    url.searchParams.append("apiKey", process.env.SPOONACULAR_API_KEY);
-    url.searchParams.append("number", 18);
-    url.searchParams.append("includeNutrition", "false");
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Spoonacular Error:", errorText);
-      return res.status(response.status).json({ error: "Spoonacular request failed", details: errorText });
-    }
-
-    const data = await response.json();
-
-    // save results to Firestore
-    // TODO: define a method for fetching/posting rating and difficulty
-    console.log("Saving to Firestore:", data.results?.length, "recipes");
-    const writes = (data.recipes || []).map((recipe) =>
-      setDoc(doc(db, "recipes", String(recipe.id)), {
-        id: recipe.id,
-        title: recipe.title,
-        image: recipe.image ?? null,
-        timeMinutes: recipe.readyInMinutes ?? 0,
-        source: "official",
-        rating: 0,
-        difficulty: 0,
-        saved: false,
-        savedAt: serverTimestamp(),
-      })
-    );
-    await Promise.all(writes);
-    console.log("Random recipes saved:", writes.length);
-
-    res.json({ results: data.recipes });
-  } catch (err) {
-    console.error("Random recipes error:", err);
-    res.status(500).json({ error: "Failed to fetch random recipes", details: err.message });
-  }
-});
-
-// load cached recipes
-router.get("/recipes/cached", async (req, res) => {
-  try {
-    const q = query(
-      collection(db, "recipes"),
-      orderBy("savedAt", "asc"),
-    );
-
-    const snapshot = await getDocs(q);
-    const recipes = snapshot.docs.map(doc => doc.data());
-
-    res.json({ results: recipes });
-  } catch (err) {
-    console.error("Cache fetch error:", err);
-    res.status(500).json({ error: "Failed to fetch cached recipes" });
-  }
-});
-
-// search recipes
+// search for official recipes
 router.get("/recipes", async (req, res) => {
   const { query: searchQuery = "", maxReadyTime = "", number = 18 } = req.query;
 
@@ -107,6 +41,56 @@ router.get("/recipes", async (req, res) => {
   }
 });
 
+// GET random recipes -- called only when recipes collection is empty
+router.get("/recipes/random", async (req, res) => {
+  try {
+    if (!process.env.SPOONACULAR_API_KEY) {
+      return res.status(500).json({ error: "SPOONACULAR_API_KEY is not defined" });
+    }
+
+    const url = new URL("https://api.spoonacular.com/recipes/random");
+    url.searchParams.append("apiKey", process.env.SPOONACULAR_API_KEY);
+    url.searchParams.append("number", 18);
+    url.searchParams.append("includeNutrition", "false");
+
+    console.log("Calling Spoonacular:", url.toString());
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Spoonacular Error:", errorText);
+      return res.status(response.status).json({ error: "Spoonacular request failed", details: errorText });
+    }
+
+    const data = await response.json();
+
+    // save results to Firestore
+    // TODO: define a method for fetching/posting rating and difficulty
+    console.log("Saving to Firestore:", data.recipes?.length, "recipes");
+    const writes = (data.recipes || []).map((recipe) =>
+      setDoc(doc(db, "recipes", String(recipe.id)), {
+        id: recipe.id,
+        title: recipe.title,
+        image: recipe.image ?? null,
+        readyInMinutes: recipe.readyInMinutes ?? 0,
+        source: "official",
+        rating: 0,
+        difficulty: 0,
+        saved: false,
+        savedAt: serverTimestamp(),
+      })
+    );
+    await Promise.all(writes);
+    console.log("Random recipes saved:", writes.length);
+
+    res.json({ results: data.recipes });
+  } catch (err) {
+    console.error("Random recipes error:", err);
+    res.status(500).json({ error: "Failed to fetch random recipes", details: err.message });
+  }
+});
+
 // get specific recipe
 router.get("/recipe/:id", async (req, res) => {
   const { id } = req.params;
@@ -121,6 +105,8 @@ router.get("/recipe/:id", async (req, res) => {
     url.searchParams.append("includeNutrition", "false");
     url.searchParams.append("addWinePairing", "false");
     url.searchParams.append("addTasteData", "false");
+
+    console.log("Calling Spoonacular:", url.toString());
 
     const response = await fetch(url);
 
