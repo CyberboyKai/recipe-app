@@ -67,7 +67,19 @@ const MyRecipes = () => {
         <div className="recipes-section">
           <div className="recipe-grid">
             {recipes.map((recipe) => (
-              <RecipeCard key={recipe.title} recipe={recipe} />
+              <div key={recipe.title} className="my-recipe-card-wrapper">
+                <RecipeCard recipe={recipe} />
+                {activeTab === 'created' ? (
+                  <div className="my-recipe-actions">
+                    <button className="button ghost compact">Edit</button>
+                    <button className="button dark compact">Delete</button>
+                  </div>
+                ) : (
+                  <div className="my-recipe-actions">
+                    <button className="button ghost compact">Remove</button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
