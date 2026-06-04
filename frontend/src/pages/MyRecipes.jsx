@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
 import { db } from '../firebase.js';
@@ -34,12 +41,13 @@ const MyRecipes = () => {
     if (user === null) navigate('/login');
   }, [user, navigate]);
 
-  // fetch created recipes
+  // fetch created recipes — recipes collection where source == "user" and authorId == uid
   useEffect(() => {
     if (!user) return;
     const fetchCreated = async () => {
       const q = query(
-        collection(db, 'userRecipes'),
+        collection(db, 'recipes'),
+        where('source', '==', 'user'),
         where('authorId', '==', user.uid)
       );
       const snapshot = await getDocs(q);
@@ -48,15 +56,13 @@ const MyRecipes = () => {
     fetchCreated();
   }, [user]);
 
-  // fetch saved recipes
+  // fetch saved recipes — users/{uid}/savedRecipes subcollection
   useEffect(() => {
     if (!user) return;
     const fetchSaved = async () => {
-      const q = query(
-        collection(db, 'savedRecipes'),
-        where('userId', '==', user.uid)
+      const snapshot = await getDocs(
+        collection(db, 'users', user.uid, 'savedRecipes')
       );
-      const snapshot = await getDocs(q);
       setSavedRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
       setLoading(false);
     };
@@ -64,19 +70,23 @@ const MyRecipes = () => {
   }, [user]);
 
   const handleDelete = async (recipeId) => {
-    await deleteDoc(doc(db, 'userRecipes', recipeId));
+    await deleteDoc(doc(db, 'recipes', recipeId));
     setCreatedRecipes((prev) => prev.filter((r) => r.id !== recipeId));
   };
 
   const handleRemove = async (savedId) => {
-    await deleteDoc(doc(db, 'savedRecipes', savedId));
+    await deleteDoc(doc(db, 'users', user.uid, 'savedRecipes', savedId));
     setSavedRecipes((prev) => prev.filter((r) => r.id !== savedId));
   };
 
   const recipes = activeTab === 'created' ? createdRecipes : savedRecipes;
 
   if (user === undefined || loading) {
-    return <div className="app-shell" style={{ paddingTop: 80, textAlign: 'center' }}>Loading…</div>;
+    return (
+      <div className="app-shell" style={{ paddingTop: 80, textAlign: 'center' }}>
+        Loading…
+      </div>
+    );
   }
 
   return (
