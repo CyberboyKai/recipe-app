@@ -94,6 +94,13 @@ const MyRecipes = () => {
     setCreatedRecipes((prev) => prev.filter((r) => r.id !== recipeId));
   };
 
+  const handlePublish = async (recipeId) => {
+    await updateDoc(doc(db, 'recipes', recipeId), { published: true });
+    setCreatedRecipes((prev) =>
+      prev.map((r) => (r.id === recipeId ? { ...r, published: true } : r))
+    );
+  };
+
   const handleRemove = async (recipeId) => {
     // remove the id from the savedRecipes array in users/{uid}
     await updateDoc(doc(db, 'users', user.uid), {
@@ -186,6 +193,14 @@ const MyRecipes = () => {
                       >
                         Edit
                       </button>
+                      {!recipe.published && (
+                        <button
+                          className="button ghost compact"
+                          onClick={() => handlePublish(recipe.id)}
+                        >
+                          Publish
+                        </button>
+                      )}
                       <button
                         className="button dark compact"
                         onClick={() => handleDelete(recipe.id)}
