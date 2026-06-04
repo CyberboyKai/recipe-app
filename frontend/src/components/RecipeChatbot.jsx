@@ -54,7 +54,9 @@ function RecipeChatbot() {
       )}
 
       {/* Floating Toggle Button */}
-      <button 
+      <button
+        className="chatbot-toggle-btn"
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         style={{ float: 'right', padding: '12px 24px', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '24px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
       >
