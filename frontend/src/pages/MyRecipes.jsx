@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
+import { db } from '../firebase.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import salad from '../assets/salad.png';
 import RecipeCard from '../components/RecipeCard.jsx';
 import ReviewCard from '../components/ReviewCard.jsx';
-import { featuredRecipes } from '../data/recipes.js';
 
 const placeholderReviews = [
   {
@@ -18,13 +21,63 @@ const placeholderReviews = [
   },
 ];
 
-const mockCreated = featuredRecipes;
-const mockSaved = featuredRecipes.slice(0, 3);
-
 const MyRecipes = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('created');
+  const [createdRecipes, setCreatedRecipes] = useState([]);
+  const [savedRecipes, setSavedRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const recipes = activeTab === 'created' ? mockCreated : mockSaved;
+  // redirect to login if not authenticated
+  useEffect(() => {
+    if (user === null) navigate('/login');
+  }, [user, navigate]);
+
+  // fetch created recipes
+  useEffect(() => {
+    if (!user) return;
+    const fetchCreated = async () => {
+      const q = query(
+        collection(db, 'userRecipes'),
+        where('authorId', '==', user.uid)
+      );
+      const snapshot = await getDocs(q);
+      setCreatedRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+    };
+    fetchCreated();
+  }, [user]);
+
+  // fetch saved recipes
+  useEffect(() => {
+    if (!user) return;
+    const fetchSaved = async () => {
+      const q = query(
+        collection(db, 'savedRecipes'),
+        where('userId', '==', user.uid)
+      );
+      const snapshot = await getDocs(q);
+      setSavedRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    };
+    fetchSaved();
+  }, [user]);
+
+  const handleDelete = async (recipeId) => {
+    await deleteDoc(doc(db, 'userRecipes', recipeId));
+    setCreatedRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+  };
+
+  const handleRemove = async (savedId) => {
+    await deleteDoc(doc(db, 'savedRecipes', savedId));
+    setSavedRecipes((prev) => prev.filter((r) => r.id !== savedId));
+  };
+
+  const recipes = activeTab === 'created' ? createdRecipes : savedRecipes;
+
+  if (user === undefined || loading) {
+    return <div className="app-shell" style={{ paddingTop: 80, textAlign: 'center' }}>Loading…</div>;
+  }
 
   return (
     <div className="app-shell">
@@ -65,23 +118,46 @@ const MyRecipes = () => {
         </div>
 
         <div className="recipes-section">
-          <div className="recipe-grid">
-            {recipes.map((recipe) => (
-              <div key={recipe.title} className="my-recipe-card-wrapper">
-                <RecipeCard recipe={recipe} />
-                {activeTab === 'created' ? (
-                  <div className="my-recipe-actions">
-                    <button className="button ghost compact">Edit</button>
-                    <button className="button dark compact">Delete</button>
-                  </div>
-                ) : (
-                  <div className="my-recipe-actions">
-                    <button className="button ghost compact">Remove</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          {recipes.length === 0 ? (
+            <p style={{ color: '#77736d', textAlign: 'center', padding: '40px 0' }}>
+              {activeTab === 'created'
+                ? "You haven't created any recipes yet."
+                : "You haven't saved any recipes yet."}
+            </p>
+          ) : (
+            <div className="recipe-grid">
+              {recipes.map((recipe) => (
+                <div key={recipe.id} className="my-recipe-card-wrapper">
+                  <RecipeCard recipe={recipe} />
+                  {activeTab === 'created' ? (
+                    <div className="my-recipe-actions">
+                      <button
+                        className="button ghost compact"
+                        onClick={() => navigate(`/edit-recipe/${recipe.id}`)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="button dark compact"
+                        onClick={() => handleDelete(recipe.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="my-recipe-actions">
+                      <button
+                        className="button ghost compact"
+                        onClick={() => handleRemove(recipe.id)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>
