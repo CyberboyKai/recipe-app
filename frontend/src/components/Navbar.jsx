@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
-import useAuth from "../hooks/useAuth.js";
+import useAuth from '../hooks/useAuth.js';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -9,7 +9,7 @@ export default function Navbar() {
 
   const linkClass = ({ isActive }) =>
     `rounded-md px-4 py-2 text-xs font-medium transition ${
-      isActive ? "bg-gray-100 text-black" : "text-gray-600 hover:text-black"
+      isActive ? 'bg-gray-100 text-black' : 'text-gray-600 hover:text-black'
     }`;
 
   const closeMenu = () => {
@@ -56,53 +56,63 @@ export default function Navbar() {
   return (
     <nav className="w-full border-b bg-white">
       <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-8 px-4 py-5">
-        
-        {/* Logo */}
-        <NavLink to="/" className="brand-logo text-lg text-gray-950">
-          RECIPE-APP
+        <NavLink to="/" className="brand-logo text-lg font-bold text-gray-950">
+          RecipeApp
         </NavLink>
 
-        {/* DESKTOP LINKS */}
         <div className="hidden items-center gap-5 md:flex">
-          <NavLink to="/" className={linkClass}>Home</NavLink>
-          <NavLink to="/recipes" className={linkClass}>Recipes</NavLink>
-          <NavLink to="/my-recipes" className={linkClass}>My Recipes</NavLink>
-          <NavLink to="/create" className={linkClass}>Create Recipe</NavLink>
-          {isAdmin && <NavLink to="/admin" className={linkClass}>Admin</NavLink>}
+          <NavLink to="/" className={linkClass}>
+            Home
+          </NavLink>
+          <NavLink to="/recipes" className={linkClass}>
+            Recipes
+          </NavLink>
+          <NavLink to="/my-recipes" className={linkClass}>
+            My Recipes
+          </NavLink>
+          <NavLink to="/create" className={linkClass}>
+            Create Recipe
+          </NavLink>
+          <NavLink to="/chat" className={linkClass}>
+            Chatbot
+          </NavLink>
+          {isAdmin && (
+            <NavLink to="/admin" className={linkClass}>
+              Admin
+            </NavLink>
+          )}
         </div>
 
-        {/* DESKTOP AUTH */}
-        <div className="hidden items-center gap-3 md:flex">
-          {authControls}
-        </div>
+        <div className="hidden items-center gap-3 md:flex">{authControls}</div>
 
-        {/* MOBILE MENU ICON */}
         <button
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="md:hidden flex flex-col justify-center gap-1"
+          className="flex flex-col justify-center gap-1 md:hidden"
+          type="button"
         >
-          {/* makeshift hamburger icon */}
           <span className="h-0.5 w-6 bg-black"></span>
           <span className="h-0.5 w-6 bg-black"></span>
           <span className="h-0.5 w-6 bg-black"></span>
         </button>
       </div>
 
-      {/* MOBILE DROPDOWN */}
       {menuOpen && (
-        <div className="md:hidden border-t px-4 pb-4">
+        <div className="border-t px-4 pb-4 md:hidden">
           <div className="flex flex-col gap-2 pt-3">
-            <NavLink onClick={() => setMenuOpen(false)} to="/" className={linkClass}>
+            <NavLink onClick={closeMenu} to="/" className={linkClass}>
               Home
             </NavLink>
-            <NavLink onClick={() => setMenuOpen(false)} to="/recipes" className={linkClass}>
+            <NavLink onClick={closeMenu} to="/recipes" className={linkClass}>
               Recipes
             </NavLink>
-            <NavLink onClick={() => setMenuOpen(false)} to="/my-recipes" className={linkClass}>
+            <NavLink onClick={closeMenu} to="/my-recipes" className={linkClass}>
               My Recipes
             </NavLink>
-            <NavLink onClick={() => setMenuOpen(false)} to="/create" className={linkClass}>
+            <NavLink onClick={closeMenu} to="/create" className={linkClass}>
               Create Recipe
+            </NavLink>
+            <NavLink onClick={closeMenu} to="/chat" className={linkClass}>
+              Chatbot
             </NavLink>
             {isAdmin && (
               <NavLink onClick={closeMenu} to="/admin" className={linkClass}>
@@ -110,9 +120,7 @@ export default function Navbar() {
               </NavLink>
             )}
 
-            <div className="mt-3 flex flex-col gap-2">
-              {authControls}
-            </div>
+            <div className="mt-3 flex flex-col gap-2">{authControls}</div>
           </div>
         </div>
       )}

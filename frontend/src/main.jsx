@@ -1,17 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App.jsx'
-import AuthProvider from './context/AuthProvider.jsx'
-import './index.css'
-import './styles.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
+import App from './App.jsx';
+import AuthProvider from './context/AuthProvider.jsx';
+import { SpoonacularProvider } from './context/SpoonacularDataContext.jsx';
+import './index.css';
+import './styles.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <SpoonacularProvider>
+          <App />
+        </SpoonacularProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>,
-)
+);

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import AuthForm from '../components/AuthForm.jsx';
 import useAuth from '../hooks/useAuth.js';
@@ -57,8 +56,8 @@ const Login = () => {
   return (
     <main className="auth-page">
       <section className="auth-panel" aria-labelledby="login-title">
-        <Link className="brand" to="/">
-          RECIPE-APP
+        <Link className="brand font-bold" to="/">
+          RecipeApp
         </Link>
         <div className="auth-heading">
           <p className="eyebrow">Welcome back</p>
