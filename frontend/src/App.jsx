@@ -5,6 +5,7 @@ import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Recipes from './pages/Recipes.jsx';
+import RecipeDetail from './pages/RecipeDetail.jsx';
 import SignUp from './pages/SignUp.jsx';
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/recipes" element={<Recipes />} />
+        <Route path="/recipe/:id" element={<RecipeDetail />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
