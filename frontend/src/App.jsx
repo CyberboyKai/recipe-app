@@ -10,6 +10,7 @@ import AdminPage from './pages/AdminPage.jsx';
 import ChatPage from './pages/ChatPage.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
+import CreateRecipePage from './pages/CreateRecipePage.jsx';
 import MyRecipes from './pages/MyRecipes.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Recipes from './pages/Recipes.jsx';
@@ -23,6 +24,7 @@ const App = () => {
         <div className="min-h-screen bg-white">
           <Navbar />
 
+<<<<<<< HEAD
           <Routes>
             <Route path="/" element={<Home />} />
             <Route
@@ -45,6 +47,28 @@ const App = () => {
 
         <RecipeChatbot />
       </ChatProvider>
+=======
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPage />
+            </AdminRoute>
+          }
+        />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/create-recipe" element={<CreateRecipePage />} />
+        <Route path="/my-recipes" element={<MyRecipes />} />
+        <Route path="/recipes" element={<Recipes />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+>>>>>>> 336d9e7 (feat: add CreateRecipePage with healthScore field, redirects to my-recipes on submit)
     </AuthProvider>
   );
 };
