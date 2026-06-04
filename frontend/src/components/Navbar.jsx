@@ -14,7 +14,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full border-b bg-white">
+    <nav className="relative z-50 w-full border-b bg-white">
       <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-5 xl:gap-6">
         <NavLink to="/" className="brand-logo text-lg font-bold text-gray-950">
           RecipeApp
@@ -59,14 +59,26 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="border-t px-4 pb-4 xl:hidden">
-          <div className="mx-auto flex max-w-6xl flex-col gap-2 pt-3">
-            <NavLink onClick={closeMenu} to="/" className={linkClass}>Home</NavLink>
-            <NavLink onClick={closeMenu} to="/recipes" className={linkClass}>Recipes</NavLink>
-            <NavLink onClick={closeMenu} to="/my-recipes" className={linkClass}>My Recipes</NavLink>
-            <NavLink onClick={closeMenu} to="/create" className={linkClass}>Create Recipe</NavLink>
-            <NavLink onClick={closeMenu} to="/admin" className={linkClass}>Admin</NavLink>
-            <NavLink onClick={closeMenu} to="/chat" className={linkClass}>Chatbot</NavLink>
+        <div className="absolute left-0 top-full w-full border-t bg-white px-4 py-4 shadow-lg xl:hidden">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2">
+            <NavLink onClick={closeMenu} to="/" className={linkClass}>
+              Home
+            </NavLink>
+            <NavLink onClick={closeMenu} to="/recipes" className={linkClass}>
+              Recipes
+            </NavLink>
+            <NavLink onClick={closeMenu} to="/my-recipes" className={linkClass}>
+              My Recipes
+            </NavLink>
+            <NavLink onClick={closeMenu} to="/create" className={linkClass}>
+              Create Recipe
+            </NavLink>
+            <NavLink onClick={closeMenu} to="/admin" className={linkClass}>
+              Admin
+            </NavLink>
+            <NavLink onClick={closeMenu} to="/chat" className={linkClass}>
+              Chatbot
+            </NavLink>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
               <NavLink
