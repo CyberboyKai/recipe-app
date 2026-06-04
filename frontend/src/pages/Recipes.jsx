@@ -1,80 +1,13 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon, PhotoIcon, BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
+
+import { useRecipesData } from "../context/useRecipesData.js";
 
 const RECIPE_SOURCE = {
   OFFICIAL: "official",
   USER: "user",
 };
-
-const MOCK_OFFICIAL_RECIPES = [
-  {
-    id: "sp_1",
-    source: RECIPE_SOURCE.OFFICIAL,
-    title: "Vodka Pasta",
-    image: null,
-    rating: 4,
-    difficulty: 2,
-    timeMinutes: 30,
-    saved: false,
-  },
-  {
-    id: "sp_2",
-    source: RECIPE_SOURCE.OFFICIAL,
-    title: "Egg Rolls",
-    image: null,
-    rating: 5,
-    difficulty: 3,
-    timeMinutes: 45,
-    saved: true,
-  },
-  {
-    id: "sp_3",
-    source: RECIPE_SOURCE.OFFICIAL,
-    title: "Avocado Toast",
-    image: null,
-    rating: 3,
-    difficulty: 1,
-    timeMinutes: 10,
-    saved: false,
-  },
-];
-
-const MOCK_USER_RECIPES = [
-  {
-    id: "fs_1",
-    source: RECIPE_SOURCE.USER,
-    title: "Grandma's Chili",
-    image: null,
-    rating: 5,
-    difficulty: 2,
-    timeMinutes: 60,
-    saved: false,
-    author: "jane_doe",
-  },
-  {
-    id: "fs_2",
-    source: RECIPE_SOURCE.USER,
-    title: "Quick Stir Fry",
-    image: null,
-    rating: 4,
-    difficulty: 1,
-    timeMinutes: 20,
-    saved: false,
-    author: "cook_123",
-  },
-  {
-    id: "fs_3",
-    source: RECIPE_SOURCE.USER,
-    title: "Sourdough Bread",
-    image: null,
-    rating: 4,
-    difficulty: 4,
-    timeMinutes: 180,
-    saved: true,
-    author: "bread_lover",
-  },
-];
 
 // STAR RATING
 function StarRating({ value, max = 5 }) {
@@ -89,14 +22,17 @@ function StarRating({ value, max = 5 }) {
 
 // RECIPE CARD
 function RecipeCard({ recipe, onSave }) {
-  const { id, source, title, image, rating, difficulty, timeMinutes, saved, author } = recipe;
+  const { id, source, title, image, rating, difficulty, readyInMinutes, saved, author } = recipe;
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
       {/* IMAGE */}
       <div className="relative h-48 bg-gray-100 flex items-center justify-center">
         {image ? (
-          <img src={image} alt={title} className="h-full w-full object-cover" />
+          <div className="relative h-full w-full">
+            <img src={image} alt={title} className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/10 to-transparent" />
+          </div>
         ) : (
           <PhotoIcon className="h-14 w-14 text-gray-300" />
         )}
@@ -147,9 +83,10 @@ function RecipeCard({ recipe, onSave }) {
 
         <div className="flex items-center gap-1 text-sm text-gray-600">
           <span>Time: </span>
-          {timeMinutes} min
+          {readyInMinutes} min
         </div>
 
+        {/* FOR USER GENERATOR RECIPES */}
         {author && (
           <div className="mt-1 text-xs text-gray-400">by @{author}</div>
         )}
@@ -196,39 +133,57 @@ function FilterBar({ filters, onChange }) {
 
 // MAIN PAGE
 export default function RecipePage() {
-  const [activeSource, setActiveSource] = useState(RECIPE_SOURCE.OFFICIAL);
+  const {
+    activeSource,
+    setSource,
+    officialRecipes,
+    userRecipes,
+    searchResults,
+    loading,
+    loadOfficialRecipes,
+    loadUserRecipes,
+    searchRecipes,
+  } = useRecipesData();
+
   const [query, setQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     maxTime: 999,
     maxDifficulty: 5,
   });
 
-  const [showFilters, setShowFilters] = useState(false);
-  const [recipes, setRecipes] = useState(MOCK_OFFICIAL_RECIPES);
+  useEffect(() => {
+    loadOfficialRecipes();
+    loadUserRecipes();
+  }, []);
 
-  // TODO: save in firebase
+  const visible = useMemo(() => {
+    if (searchResults) return searchResults;
+
+    if (activeSource === RECIPE_SOURCE.OFFICIAL) {
+      return officialRecipes || [];
+    }
+    // else return the userRecipes
+    return userRecipes || [];
+  }, [activeSource, officialRecipes, userRecipes, searchResults]);
+
+  // search when the enter key is hit to avoid repeat API calls
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      searchRecipes(query, filters);
+    }
+  }
+
+  // TODO: save recipe in firebase for logged in user
+  const [savedIds, setSavedIds] = useState(new Set());
+
   function handleSave(id) {
-    setRecipes((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, saved: !r.saved } : r))
-    );
+    setSavedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   }
-
-  function handleSourceChange(source) {
-    setActiveSource(source);
-
-    setRecipes(
-      source === RECIPE_SOURCE.OFFICIAL
-        ? MOCK_OFFICIAL_RECIPES
-        : MOCK_USER_RECIPES
-    );
-  }
-
-  const visible = recipes.filter(
-    (r) =>
-      r.title.toLowerCase().includes(query.toLowerCase()) &&
-      r.timeMinutes <= filters.maxTime &&
-      r.difficulty <= filters.maxDifficulty
-  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
@@ -237,18 +192,25 @@ export default function RecipePage() {
         {/* FILTER BUTTON */}
         <button
           onClick={() => setShowFilters((v) => !v)}
-          className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-50"
+          className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100"
         >
           <AdjustmentsHorizontalIcon className="h-5 w-5" />
           Filters
         </button>
 
-        {/* SEARCH */}
-        <div className="relative flex-1 min-w-[220px]">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+        {/* SEARCH */}   
+        <div className="relative flex flex-1 min-w-[220px] items-center">
+          <button
+            onClick={() => searchRecipes(query, filters)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+          >
+            <MagnifyingGlassIcon className="h-5 w-5" />
+          </button>
+
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Search recipes..."
             className="w-full rounded-full border border-gray-200 py-2.5 pl-10 pr-4 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -257,9 +219,9 @@ export default function RecipePage() {
         {/* TOGGLE */}
         <div className="ml-auto flex rounded-full bg-gray-100 p-1 text-sm">
           <button
-            onClick={() => handleSourceChange(RECIPE_SOURCE.OFFICIAL)}
+            onClick={() => setSource("official")}
             className={`rounded-full px-4 py-1 transition ${
-              activeSource === RECIPE_SOURCE.OFFICIAL
+              activeSource === "official"
                 ? "bg-white shadow"
                 : "text-gray-500"
             }`}
@@ -268,9 +230,9 @@ export default function RecipePage() {
           </button>
 
           <button
-            onClick={() => handleSourceChange(RECIPE_SOURCE.USER)}
+            onClick={() => setSource("user")}
             className={`rounded-full px-4 py-1 transition ${
-              activeSource === RECIPE_SOURCE.USER
+              activeSource === "user"
                 ? "bg-white shadow"
                 : "text-gray-500"
             }`}
@@ -284,14 +246,16 @@ export default function RecipePage() {
       {showFilters && <FilterBar filters={filters} onChange={setFilters} />}
 
       {/* CONTENT */}
-      {visible.length === 0 ? (
+      {loading || visible === null ? (
+        <p className="text-center text-gray-400">Loading recipes...</p>
+      ) : visible.length === 0 ? (
         <p className="text-center text-gray-400">No recipes found.</p>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((recipe) => (
             <RecipeCard
               key={recipe.id}
-              recipe={recipe}
+              recipe={{...recipe, saved: savedIds.has(recipe.id)}}
               onSave={handleSave}
             />
           ))}

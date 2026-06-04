@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './App.jsx';
 import AuthProvider from './context/AuthProvider.jsx';
-import { SpoonacularProvider } from './context/SpoonacularDataContext.jsx';
+import { RecipesProvider } from "./context/RecipesDataContext.jsx";
 import './index.css';
 import './styles.css';
 
@@ -12,10 +12,10 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <SpoonacularProvider>
+        <RecipesProvider>
           <App />
-        </SpoonacularProvider>
+        </RecipesProvider>
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 );
