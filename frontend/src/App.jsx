@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
 import AdminRoute from './components/AdminRoute.jsx';
-import { AuthProvider } from './context/AuthContext.jsx';
+import AuthProvider from './context/AuthProvider.jsx';
 import Navbar from './components/Navbar.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import ChatPage from './pages/ChatPage.jsx';

@@ -13,7 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 import { db } from '../firebase.js';
-import { useAuth } from '../context/AuthContext.jsx';
+import useAuth from '../hooks/useAuth.js';
 import salad from '../assets/salad.png';
 import RecipeCard from '../components/RecipeCard.jsx';
 import ReviewCard from '../components/ReviewCard.jsx';
@@ -32,7 +32,7 @@ const placeholderReviews = [
 ];
 
 const MyRecipes = () => {
-  const { user } = useAuth();
+  const { currentUser: user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('created');
   const [createdRecipes, setCreatedRecipes] = useState([]);
@@ -95,7 +95,7 @@ const MyRecipes = () => {
   const handleRemove = async (recipeId) => {
     // remove the id from the savedRecipes array in users/{uid}
     await updateDoc(doc(db, 'users', user.uid), {
-      savedRecipes: arrayRemove(Number(recipeId)),
+      savedRecipes: arrayRemove(String(recipeId)),
     });
     setSavedRecipes((prev) => prev.filter((r) => r.id !== recipeId));
   };
