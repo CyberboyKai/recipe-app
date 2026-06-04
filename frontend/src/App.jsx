@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
 import AdminRoute from './components/AdminRoute.jsx';
+import AuthProvider from './context/AuthProvider.jsx';
 import Navbar from './components/Navbar.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import ChatPage from './pages/ChatPage.jsx';
@@ -14,6 +15,7 @@ import Unauthorized from './pages/Unauthorized.jsx';
 
 const App = () => {
   return (
+    <AuthProvider>
     <div className="min-h-screen bg-white">
       <Navbar />
 
@@ -36,6 +38,7 @@ const App = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
+    </AuthProvider>
   );
 };
 
