@@ -1,5 +1,6 @@
 import { createContext, useState, useContext } from 'react';
 import { RecipesContext } from './RecipesContext.js';
+// eslint-disable-next-line react-refresh/only-export-components
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
