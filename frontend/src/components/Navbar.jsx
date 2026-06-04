@@ -70,7 +70,7 @@ export default function Navbar() {
           <NavLink to="/my-recipes" className={linkClass}>
             My Recipes
           </NavLink>
-          <NavLink to="/create" className={linkClass}>
+          <NavLink to="/create-recipe" className={linkClass}>
             Create Recipe
           </NavLink>
           <NavLink to="/chat" className={linkClass}>
@@ -110,7 +110,7 @@ export default function Navbar() {
             <NavLink onClick={closeMenu} to="/my-recipes" className={linkClass}>
               My Recipes
             </NavLink>
-            <NavLink onClick={closeMenu} to="/create" className={linkClass}>
+            <NavLink onClick={closeMenu} to="/create-recipe" className={linkClass}>
               Create Recipe
             </NavLink>
             <NavLink onClick={closeMenu} to="/chat" className={linkClass}>
