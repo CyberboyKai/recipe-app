@@ -5,14 +5,15 @@ import App from './App.jsx'
 import './index.css'
 import './styles.css'
 
-import { SpoonacularProvider } from "./context/SpoonacularDataContext.jsx";
+// import { SpoonacularProvider } from "./context/SpoonacularDataContext.jsx";
+import { RecipesProvider } from "./context/RecipesDataContext.jsx";
 
 createRoot(document.getElementById('root')).render(
  <StrictMode>
    <BrowserRouter>
-     <SpoonacularProvider>
-       <App />
-     </SpoonacularProvider>
+      <RecipesProvider>
+        <App />
+      </RecipesProvider>
    </BrowserRouter>
  </StrictMode>,
 )
