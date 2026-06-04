@@ -1,37 +1,33 @@
-import { createContext, useState } from 'react';
-import axios from 'axios';
-
+import { createContext, useState, useContext } from 'react';
+import { SpoonacularContext } from "./SpoonacularContext.js";
 export const ChatContext = createContext();
 
-export function ChatProvider({ children }) {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hi there! I am your culinary assistant. How can I help you with your recipe today?' }
-  ]);
+export const ChatProvider = ({ children }) => {
+  const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+
+  const { recipes } = useContext(SpoonacularContext) || {}; 
 
   const handleSend = async (input) => {
-    if (!input.trim()) return;
-
-    const userMessage = { role: 'user', content: input };
-    const updatedMessages = [...messages, userMessage];
-    
-    setMessages(updatedMessages);
+    const newMessages = [...messages, { role: 'user', content: input }];
+    setMessages(newMessages);
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/chat', {
-        messages: updatedMessages
+      const response = await fetch('http://localhost:5000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          messages: newMessages,
+          recipes: recipes 
+        }),
       });
 
-      const botResponse = response.data;
-      setMessages((prev) => [...prev, botResponse]);
-
+      const data = await response.json();
+      setMessages([...newMessages, data]);
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages((prev) => [
-        ...prev, 
-        { role: 'assistant', content: 'Oops! I am having trouble connecting to the kitchen right now.' }
-      ]);
     } finally {
       setIsLoading(false);
     }
@@ -42,4 +38,4 @@ export function ChatProvider({ children }) {
       {children}
     </ChatContext.Provider>
   );
-}
+};

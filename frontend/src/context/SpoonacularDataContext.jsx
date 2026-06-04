@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SpoonacularContext } from './SpoonacularContext';
 
-// set vars to avoid double api calls
 let isFetchingRandom = false;
 
 export function SpoonacularProvider({ children }) {
@@ -26,13 +25,11 @@ export function SpoonacularProvider({ children }) {
       const data = await res.json();
 
       if (data.results && data.results.length > 0) {
-        // cache has recipes, use them
         setRecipes(normalizeRecipes(data.results));
       } else {
         if (isFetchingRandom) return;
         isFetchingRandom = true;
         try {
-          // cache is empty, fetch from random endpoint and save them
           const randomRes = await fetch("/api/recipes/random");
           const randomData = await randomRes.json();
           setRecipes(normalizeRecipes(randomData.results));
@@ -49,7 +46,6 @@ export function SpoonacularProvider({ children }) {
   }
 
   async function searchRecipes(query, filters = {}) {
-    // if the API limit is reached --> hit enter an empty bar and the cached recipes will load
     if (!query.trim()) {
       loadCachedRecipes();
       return;
@@ -62,7 +58,6 @@ export function SpoonacularProvider({ children }) {
       params.append("query", query);
       params.append("number", "18");
 
-      // if user picks a max time filter then append, if not then default to 'any' which = 999
       if (filters.maxTime && filters.maxTime !== 999) {
         params.append("maxReadyTime", filters.maxTime);
       }
@@ -77,6 +72,10 @@ export function SpoonacularProvider({ children }) {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    loadCachedRecipes();
+  }, []); 
 
   return (
     <SpoonacularContext.Provider value={{ recipes, setRecipes, searchRecipes, loadCachedRecipes, loading }}>
