@@ -577,3 +577,31 @@ input {
     padding: 26px 20px;
   }
 }
+
+
+.message-bubble h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: #145764; 
+}
+
+.message-bubble ul {
+  list-style-type: disc;
+  margin-left: 24px;
+  margin-bottom: 16px;
+}
+
+.message-bubble ol {
+  list-style-type: decimal;
+  margin-left: 24px;
+  margin-bottom: 16px;
+}
+
+.message-bubble li {
+  margin-bottom: 6px;
+}
+
+.message-bubble p {
+  margin-bottom: 12px;
+}

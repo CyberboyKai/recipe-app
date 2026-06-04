@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { RecipesContext } from './RecipesContext';
 
-// set vars to avoid double api calls
 let isFetchingRandom = false;
 
 export function RecipesProvider({ children }) {
@@ -39,7 +38,6 @@ export function RecipesProvider({ children }) {
         if (isFetchingRandom) return;
         isFetchingRandom = true;
         try {
-          // cache is empty, fetch from random endpoint and save them
           const randomRes = await fetch("/api/recipes/random");
           const randomData = await randomRes.json();
           setOfficialRecipes(normalizeRecipes(randomData.results));
@@ -75,7 +73,6 @@ export function RecipesProvider({ children }) {
 
   // SEARCH API RECIPES (Spoonacular)
   async function searchRecipes(query, filters = {}) {
-    // if the API limit is reached --> hit enter an empty bar and the cached recipes will load
     if (!query.trim()) {
       setSearchResults(null);
       return;
@@ -88,7 +85,6 @@ export function RecipesProvider({ children }) {
       params.append("query", query);
       params.append("number", "18");
 
-      // if user picks a max time filter then append, if not then default to 'any' which = 999
       if (filters.maxTime && filters.maxTime !== 999) {
         params.append("maxReadyTime", filters.maxTime);
       }
@@ -109,6 +105,7 @@ export function RecipesProvider({ children }) {
   function setSource(source) {
     setActiveSource(source);
   }
+
 
   return (
     <RecipesContext.Provider
