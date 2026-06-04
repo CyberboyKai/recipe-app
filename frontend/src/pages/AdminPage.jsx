@@ -41,10 +41,8 @@ function AdminPage() {
   const confirmReject = async () => {
     if (!recipeToReject) return;
     
-    try {
-      await axios.delete(`http://localhost:5000/api/admin/reject/${recipeToReject.id}`);
-      setPendingRecipes(pendingRecipes.filter(recipe => recipe.id !== recipeToReject.id));
-      
+      await axios.delete(`/api/admin/reject/${recipeToReject.id}`);
+      setPendingRecipes((prev) => prev.filter((recipe) => recipe.id !== recipeToReject.id));
       // Close all modals
       setRecipeToReject(null);
       setSelectedRecipe(null); 
