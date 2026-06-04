@@ -35,7 +35,7 @@ export default function Navbar() {
         <>
           <NavLink
             to="/login"
-            className="rounded-md border border-gray-300 bg-gray-50 px-5 py-2 text-xs font-medium hover:bg-gray-100"
+            className="rounded-md border border-gray-300 bg-gray-50 px-5 py-2 text-xs font-medium hover:bg-gray-100 text-center"
             onClick={closeMenu}
           >
             Sign in
@@ -43,7 +43,7 @@ export default function Navbar() {
 
           <NavLink
             to="/signup"
-            className="rounded-md bg-black px-5 py-2 text-xs font-medium text-white hover:bg-gray-800"
+            className="rounded-md bg-black px-5 py-2 text-xs font-medium text-white hover:bg-gray-800 text-center"
             onClick={closeMenu}
           >
             Register
@@ -54,13 +54,13 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="w-full border-b bg-white">
-      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-8 px-4 py-5">
+    <nav className="relative z-50 w-full border-b bg-white">
+      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-5 xl:gap-6">
         <NavLink to="/" className="brand-logo text-lg font-bold text-gray-950">
           RecipeApp
         </NavLink>
 
-        <div className="hidden items-center gap-5 md:flex">
+        <div className="hidden items-center gap-5 xl:flex">
           <NavLink to="/" className={linkClass}>
             Home
           </NavLink>
@@ -83,11 +83,13 @@ export default function Navbar() {
           )}
         </div>
 
-        <div className="hidden items-center gap-3 md:flex">{authControls}</div>
+        <div className="hidden items-center gap-3 xl:flex">{authControls}</div>
 
         <button
+          aria-expanded={menuOpen}
+          aria-label="Toggle navigation menu"
+          className="flex flex-col justify-center gap-1 justify-self-end xl:hidden"
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="flex flex-col justify-center gap-1 md:hidden"
           type="button"
         >
           <span className="h-0.5 w-6 bg-black"></span>
@@ -97,8 +99,8 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="border-t px-4 pb-4 md:hidden">
-          <div className="flex flex-col gap-2 pt-3">
+        <div className="absolute left-0 top-full w-full border-t bg-white px-4 py-4 shadow-lg xl:hidden">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2">
             <NavLink onClick={closeMenu} to="/" className={linkClass}>
               Home
             </NavLink>
