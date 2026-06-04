@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { ChatContext } from '../context/ChatContext';
+import ReactMarkdown from 'react-markdown'; // 1. Added this import!
 import './RecipeChatbot.css'; 
 
 function RecipeChatbot() {
@@ -26,7 +27,10 @@ function RecipeChatbot() {
             {messages.map((msg, index) => (
               <div key={index} className={`message-wrapper ${msg.role}`} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div className={`message-bubble ${msg.role}`} style={{ maxWidth: '80%', padding: '10px 14px', borderRadius: '16px', fontSize: '0.9rem', backgroundColor: msg.role === 'user' ? '#000' : '#f5f5f5', color: msg.role === 'user' ? '#fff' : '#000', borderBottomRightRadius: msg.role === 'user' ? '4px' : '16px', borderBottomLeftRadius: msg.role === 'assistant' ? '4px' : '16px' }}>
-                  {msg.content}
+                  
+                  {/* 2. Wrapped the content in ReactMarkdown! */}
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  
                 </div>
               </div>
             ))}
@@ -55,7 +59,6 @@ function RecipeChatbot() {
             >
               {isLoading ? '...' : 'Send'}
             </button>
-          </form>
           </form>
         </div>
       )}

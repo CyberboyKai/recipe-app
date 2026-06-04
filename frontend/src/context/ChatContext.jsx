@@ -59,4 +59,3 @@ export const ChatProvider = ({ children }) => {
       {children}
     </ChatContext.Provider>
   );
-};

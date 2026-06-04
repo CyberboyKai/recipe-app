@@ -7,19 +7,19 @@ function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // State for the review modal and the delete confirmation modal
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipeToReject, setRecipeToReject] = useState(null);
 
   useEffect(() => {
     const fetchPendingRecipes = async () => {
+      try { // Added missing try block
         const response = await axios.get('/api/admin/pending');
+        setPendingRecipes(response.data); // Added saving the data!
       } catch (err) {
         console.error('Error fetching recipes:', err);
         setPendingRecipes([]);
         setError('Failed to load pending recipes. Please try again later.');
-      }
-      } finally {
+      } finally { // Fixed bracket formatting
         setIsLoading(false);
       }
     };
@@ -28,8 +28,9 @@ function AdminPage() {
 
   const handleApprove = async (recipeId) => {
     try {
-      await axios.put(`http://localhost:5000/api/admin/approve/${recipeId}`);
-      setPendingRecipes(pendingRecipes.filter(recipe => recipe.id !== recipeId));
+      // Removed hardcoded localhost:5000
+      await axios.put(`/api/admin/approve/${recipeId}`);
+      setPendingRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.id !== recipeId));      
       setSelectedRecipe(null); 
     } catch (err) {
       console.error('Error approving recipe:', err);
@@ -37,13 +38,13 @@ function AdminPage() {
     }
   };
 
-  // Triggers the custom confirmation modal instead of Chrome's native alert
   const confirmReject = async () => {
     if (!recipeToReject) return;
     
+    try { // Added missing try block
       await axios.delete(`/api/admin/reject/${recipeToReject.id}`);
       setPendingRecipes((prev) => prev.filter((recipe) => recipe.id !== recipeToReject.id));
-      // Close all modals
+      
       setRecipeToReject(null);
       setSelectedRecipe(null); 
     } catch (err) {
@@ -52,6 +53,7 @@ function AdminPage() {
       setRecipeToReject(null);
     }
   };
+
 
   return (
     <div className="admin-container">
