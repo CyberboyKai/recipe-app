@@ -123,6 +123,27 @@ router.patch("/recipes/:recipeId/comments/:commentId/like", async (req, res) => 
   }
 );
 
+const updateRecipeRatingStats = async (recipeId) => {
+  const reviewsRef = collection(db, "recipes", recipeId, "reviews");
+  const snapshot = await getDocs(reviewsRef);
+
+  const reviews = snapshot.docs.map(doc => doc.data());
+
+  const ratingCount = reviews.length;
+
+  const avgRating =
+    ratingCount === 0
+      ? 0
+      : reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / ratingCount;
+
+  const recipeRef = doc(db, "recipes", recipeId);
+
+  await updateDoc(recipeRef, {
+    rating: avgRating,
+    rating_count: ratingCount,
+  });
+};
+
 // GET /api/recipes/:recipeId/reviews
 router.get("/recipes/:recipeId/reviews", async (req, res) => {
   try {
@@ -157,6 +178,8 @@ router.post("/recipes/:recipeId/reviews", async (req, res) => {
       text,
       date: new Date().toISOString()
     });
+
+    await updateRecipeRatingStats(recipeId);
 
     res.status(201).json({ success: true });
 
