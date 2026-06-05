@@ -4,30 +4,27 @@ import "../pages/RecipeDetail.css";
 export default function RatingSummary({ recipeId }) {
   const [reviews, setReviews] = useState([]);
 
-  const fetchReviews = async () => {
-    try {
-      const res = await fetch(`/api/recipes/${recipeId}/reviews`);
-      const data = await res.json();
-
-      const formatted = data.map(r => ({
-        id: r.id,
-        displayName: r.displayName,
-        rating: r.rating,
-        text: r.text,
-        date: r.date?.seconds
-          ? new Date(r.date.seconds * 1000).toLocaleDateString()
-          : "Recently",
-      }));
-
-      console.log("RAW REVIEWS:", data);
-
-      setReviews(formatted);
-    } catch (err) {
-      console.error(err);
-    } 
-  };
-  
   useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/recipes/${recipeId}/reviews`);
+        if (!res.ok) throw new Error("Failed to fetch reviews");
+        
+        const data = await res.json();
+        const formatted = data.map(r => ({ 
+          id: r.id, 
+          displayName: r.displayName, 
+          rating: r.rating, 
+          text: r.text, 
+          date: r.date 
+        }));
+        
+        setReviews(formatted);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
     fetchReviews();
   }, [recipeId]);
 

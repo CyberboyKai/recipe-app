@@ -10,22 +10,27 @@ export default function ReviewsSection({ recipeId, currentUser }) {
   // Filter Selection State ("All", 5, 4, 3, 2, 1)
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  const fetchReviews = async () => {
-    const res = await fetch(`/api/recipes/${recipeId}/reviews`);
-    const data = await res.json();
-
-    const formatted = data.map(r => ({
-      id: r.id,
-      displayName: r.displayName,
-      rating: r.rating,
-      text: r.text,
-      date: r.date
-    }));
-
-    setReviews(formatted);
-  };
-
   useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/recipes/${recipeId}/reviews`);
+        if (!res.ok) throw new Error("Failed to fetch reviews");
+        
+        const data = await res.json();
+        const formatted = data.map(r => ({ 
+          id: r.id, 
+          displayName: r.displayName, 
+          rating: r.rating, 
+          text: r.text, 
+          date: r.date 
+        }));
+        
+        setReviews(formatted);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
     fetchReviews();
   }, [recipeId]);
 
