@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "../pages/RecipeDetail.css";
 
 export default function ReviewsSection({ recipeId, currentUser }) {
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [formRating, setFormRating] = useState(0); 
   const [formBody, setFormBody] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -12,22 +11,18 @@ export default function ReviewsSection({ recipeId, currentUser }) {
   const [selectedFilter, setSelectedFilter] = useState("All");
 
   const fetchReviews = async () => {
-    try {
-      const res = await fetch(`/api/recipes/${recipeId}/reviews`);
-      const data = await res.json();
+    const res = await fetch(`/api/recipes/${recipeId}/reviews`);
+    const data = await res.json();
 
-      const formatted = data.map(r => ({
-        id: r.id,
-        displayName: r.displayName,
-        rating: r.rating,
-        text: r.text,
-        date: r.date
-      }));
+    const formatted = data.map(r => ({
+      id: r.id,
+      displayName: r.displayName,
+      rating: r.rating,
+      text: r.text,
+      date: r.date
+    }));
 
-      setReviews(formatted);
-    } finally {
-      setLoading(false);
-    }
+    setReviews(formatted);
   };
 
   useEffect(() => {
@@ -42,7 +37,7 @@ export default function ReviewsSection({ recipeId, currentUser }) {
       return;
     }
 
-    try {
+
       const res = await fetch(`/api/recipes/${recipeId}/reviews`, {
         method: "POST",
         headers: {
@@ -66,9 +61,7 @@ export default function ReviewsSection({ recipeId, currentUser }) {
       setFormRating(0);
       setFormBody("");
       setErrorMessage("");
-    } catch (err) {
-      setErrorMessage("Failed to submit review.");
-    }
+
   };
 
   const filteredReviews = reviews.filter((review) => {
