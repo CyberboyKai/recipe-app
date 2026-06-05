@@ -1,6 +1,6 @@
 import express from "express";
 import db from "../firebase.js";
-import { collection, addDoc, getDocs, getDoc, doc, updateDoc, serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, doc, updateDoc, setDoc, serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
 
 const router = express.Router();
 
@@ -122,5 +122,48 @@ router.patch("/recipes/:recipeId/comments/:commentId/like", async (req, res) => 
     }
   }
 );
+
+// GET /api/recipes/:recipeId/reviews
+router.get("/recipes/:recipeId/reviews", async (req, res) => {
+  try {
+    const { recipeId } = req.params;
+
+    const reviewsRef = collection(db, "recipes", recipeId, "reviews");
+    const snapshot = await getDocs(reviewsRef);
+
+    const reviews = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    res.json(reviews);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/recipes/:recipeId/reviews
+router.post("/recipes/:recipeId/reviews", async (req, res) => {
+  try {
+    const { recipeId } = req.params;
+    const { userId, displayName, rating, text } = req.body;
+
+    const reviewRef = doc(db, "recipes", recipeId, "reviews", userId);
+
+    await setDoc(reviewRef, {
+      displayName,
+      rating,
+      text,
+      date: new Date().toISOString()
+    });
+
+    res.status(201).json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create review" });
+  }
+});
 
 export default router;

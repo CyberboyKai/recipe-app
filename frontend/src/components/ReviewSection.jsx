@@ -1,38 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../pages/RecipeDetail.css";
 
-export default function ReviewsSection() {
-  const [reviews, setReviews] = useState([
-    {
-      id: 1,
-      userName: "Anonymous Reviewer",
-      rating: 5,
-      body: "A total hit with the family! Simple ingredients, restaurant quality flavor.",
-      date: "October 24, 2026"
-    },
-    {
-      id: 2,
-      userName: "Anonymous Reviewer",
-      rating: 4,
-      body: "Very good! Added a bit of extra garlic and it was perfect.",
-      date: "May 12, 2026"
-    },
-    {
-      id: 3,
-      userName: "Anonymous Reviewer",
-      rating: 1,
-      body: "Sauce separated completely. Instructions lacked temperature parameters.",
-      date: "April 02, 2026"
-    },
-    {
-      id: 4,
-      userName: "Anonymous Reviewer",
-      rating: 5,
-      body: "",
-      date: "January 15, 2026"
-    }
-  ]);
-
+export default function ReviewsSection({ recipeId, currentUser }) {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formRating, setFormRating] = useState(0); 
   const [formBody, setFormBody] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -40,27 +11,76 @@ export default function ReviewsSection() {
   // Filter Selection State ("All", 5, 4, 3, 2, 1)
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  const handleReviewSubmit = (e) => {
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch(`/api/recipes/${recipeId}/reviews`);
+      const data = await res.json();
+
+      const formatted = data.map(r => ({
+        id: r.id,
+        displayName: r.displayName,
+        rating: r.rating,
+        text: r.text,
+        date: r.date?.seconds
+          ? new Date(r.date.seconds * 1000).toLocaleDateString()
+          : "Recently",
+      }));
+
+      setReviews(formatted);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, [recipeId]);
+
+  const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formRating === 0) {
       setErrorMessage("Please select a star rating between 1 and 5.");
       return;
     }
 
-    const freshReview = {
-      id: Date.now(),
-      userName: "Anonymous Reviewer",
-      rating: parseInt(formRating),
-      body: formBody.trim(),
-      date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
-    };
+    try {
+      const res = await fetch(`/api/recipes/${recipeId}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: currentUser.uid,
+          displayName: currentUser.displayName || "Anonymous",
+          rating: formRating,
+          text: formBody.trim(),
+        }),
+      });
 
-    setReviews([freshReview, ...reviews]);
-    
-    setFormRating(0);
-    setFormBody("");
-    setErrorMessage("");
+      if (!res.ok) {
+        console.error("Backend error response:", data);
+        throw new Error("Failed to submit review");
+      }
+      // re-fetch reviews OR optimistically update:
+      const newReview = {
+        id: currentUser.uid,
+        displayName: currentUser.displayName,
+        rating: formRating,
+        text: formBody,
+        date: new Date().toLocaleDateString(),
+      };
+
+      await fetchReviews();
+
+      setFormRating(0);
+      setFormBody("");
+      setErrorMessage("");
+    } catch (err) {
+      setErrorMessage("Failed to submit review.");
+    }
   };
 
   const filteredReviews = reviews.filter((review) => {
@@ -155,7 +175,7 @@ export default function ReviewsSection() {
                 <div className="user-avatar-placeholder">📋</div>
                 <div className="user-meta-info">
                   <div className="review-title-line-meta">
-                    <span className="commenter-name">{review.userName}</span>
+                    <span className="commenter-name">{review.displayName}</span>
                     <span className="stars-rating-badge-inline">
                       {"★".repeat(review.rating) + "☆".repeat(5 - review.rating)}
                     </span>
@@ -163,7 +183,7 @@ export default function ReviewsSection() {
                   <span className="comment-date-stamp">{review.date}</span>
                 </div>
               </div>
-              {review.body && <p className="comment-body-text review-card-paragraph-text">"{review.body}"</p>}
+              {review.text && <p className="comment-body-text review-card-paragraph-text">"{review.text}"</p>}
             </div>
           ))
         )}

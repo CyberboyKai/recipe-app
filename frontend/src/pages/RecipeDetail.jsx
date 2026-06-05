@@ -176,7 +176,7 @@ export default function RecipeDetail() {
         <div className="comments-section-container">
             <RatingSummary reviews={reviews} />
             <CommentsSection recipeId={id} currentUser={user}/>
-            <ReviewsSection />
+            <ReviewsSection recipeId={id} currentUser={user}/>
         </div>
         
     </div>
