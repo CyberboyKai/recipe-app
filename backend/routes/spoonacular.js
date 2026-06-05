@@ -19,8 +19,6 @@ router.get("/recipes", async (req, res) => {
     url.searchParams.append("number", number);
     // matchReadyTime: The maximum time in minutes it should take to prepare AND cook the recipe.
     if (maxReadyTime) url.searchParams.append("maxReadyTime", maxReadyTime);
-    if (servings) url.searchParams.append("servings", servings);
-    if (healthScore) url.searchParams.append("healthScore", healthScore);
     // addRecipeInformation needs to be set to true to fetch maxReadyTime
     url.searchParams.append("addRecipeInformation", "true");
 
