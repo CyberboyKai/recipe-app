@@ -4,6 +4,8 @@ import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.js';
 import useAuth from '../hooks/useAuth.js';
 
+import { getHealthText } from "../services/healthScore";
+
 const emptyIngredient = () => ({ name: '', amount: '' });
 
 const EditRecipePage = () => {
@@ -91,8 +93,8 @@ const EditRecipePage = () => {
         published: false,
         image: imageUrl.trim() || null,
         // RecipeCard display fields
-        time: Number(prepTime) + Number(cookTime) || 0,
-        level: Number(healthScore) || 0,
+        time: `${Number(prepTime) + Number(cookTime) || 0} mins`,
+        level:`${getHealthText(Number(healthScore)) || 0}`,
         updatedAt: serverTimestamp(),
       });
       navigate('/my-recipes');

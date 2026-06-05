@@ -18,7 +18,7 @@ const formatRecipe = (recipe) => ({
   id: recipe.id,
   title: recipe.title,
   time: `${recipe.timeMinutes ?? recipe.readyInMinutes ?? 0} Mins`,
-  servings: `${recipe.servings ?? 2} Serving`,
+  servings: `${recipe.servings ?? 2} Servings`,
   healthScore: getHealthText(`${recipe.healthScore ?? 0}`),
   image: recipe.image,
 });

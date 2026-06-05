@@ -4,6 +4,8 @@ import { collection, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/fi
 import { db } from '../firebase.js';
 import useAuth from '../hooks/useAuth.js';
 
+import { getHealthText } from "../services/healthScore";
+
 const emptyIngredient = () => ({ name: '', amount: '' });
 
 const CreateRecipePage = () => {
@@ -61,8 +63,8 @@ const CreateRecipePage = () => {
         source: 'user',
         published: true,
         // RecipeCard display fields
-        time: Number(prepTime) + Number(cookTime) || 0,
-        level: Number(healthScore) || 0,
+        time: `${Number(prepTime) + Number(cookTime) || 0} mins`,
+        level: `${getHealthText(Number(healthScore)) || 0}`,
         image: imageUrl.trim() || null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),

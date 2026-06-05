@@ -18,6 +18,8 @@ import salad from '../assets/salad.png';
 import RecipeCard from '../components/RecipeCard.jsx';
 import ReviewCard from '../components/ReviewCard.jsx';
 
+import { getHealthText } from "../services/healthScore";
+
 const placeholderReviews = [
   {
     name: 'Sarah M.',
@@ -55,7 +57,7 @@ const MyRecipes = () => {
         where('authorId', '==', user.uid)
       );
       const snapshot = await getDocs(q);
-      setCreatedRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setCreatedRecipes(snapshot.docs.map((d) => formatUserRecipe(d.id, d.data())));
       setLoadingCreated(false);
     };
     fetchCreated();
@@ -82,12 +84,21 @@ const MyRecipes = () => {
       setSavedRecipes(
         recipeDocs
           .filter((d) => d.exists())
-          .map((d) => ({ id: d.id, ...d.data() }))
+          .map((d) => formatUserRecipe(d.id, d.data()))
       );
       setLoadingSaved(false);
     };
     fetchSaved();
   }, [user]);
+
+  const formatUserRecipe = (id, data) => ({
+    ...data,
+    id,
+    href: `/recipes/${id}`,
+    time: `${(data.prepTime ?? 0) + (data.cookTime ?? 0)} mins`,
+    servings: `${data.servings ?? 1} servings`,
+    healthScore: getHealthText(data.healthScore ?? 0),
+  });
 
   const handleDelete = async (recipeId) => {
     await deleteDoc(doc(db, 'recipes', recipeId));
