@@ -253,6 +253,16 @@ export default function RecipePage() {
               className="w-full rounded-full border border-gray-200 py-2.5 pl-11 pr-12 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
+            {/* CLEAR BUTTON */}
+            {query && (
+              <button
+                onClick={() => { setQuery(""); setSearchResults(null); }}
+                className="absolute right-10 text-gray-400 hover:text-gray-600 mr-2"
+              >
+                ✕
+              </button>
+            )}
+
             {/* FILTER TOGGLE */}
             <div className="absolute right-2" ref={filterRef}>
               <button
