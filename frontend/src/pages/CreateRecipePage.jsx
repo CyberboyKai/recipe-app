@@ -83,8 +83,10 @@ const CreateRecipePage = () => {
 
   return (
     <div className="app-shell" style={{ paddingTop: 48, maxWidth: 680, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>Create a New Recipe</h1>
-      <p style={{ color: '#77736d', marginBottom: 32 }}>Fill in the details below to share your recipe with the community.</p>
+      <header className="mb-8 text-left">
+        <h1 className="text-[2.5rem] font-bold tracking-[-0.02em] text-black mb-2">Create a New Recipe</h1>
+        <p className="text-[#666] text-base m-0">Fill in the details below to share your recipe with the community.</p>
+      </header>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 

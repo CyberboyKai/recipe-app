@@ -122,28 +122,13 @@ const MyRecipes = () => {
   }
 
   return (
-    <div className="app-shell">
+    <div className="max-w-[1200px] mx-auto px-8 py-12 text-[#111]">
       <main>
-        <section className="hero-section" aria-labelledby="my-recipes-title">
-          <div className="hero-copy">
-            <div className="hero-text">
-              <h1 id="my-recipes-title">Easy recipes for any occasion</h1>
-            </div>
-          </div>
-
-          <div className="hero-visual" aria-label="Featured dish">
-            <img src={salad} alt="Avocado egg bowl with broccoli and toast" />
-            {placeholderReviews.map((review) => (
-              <ReviewCard
-                key={review.name}
-                name={review.name}
-                quote={review.quote}
-                position={review.position}
-              />
-            ))}
-          </div>
-        </section>
-
+        <header className="mb-6 text-left">
+          <h1 className="text-[2.5rem] font-bold tracking-[-0.02em] text-black mb-2">My Recipes</h1>
+          <p className="text-[#666] text-base m-0">View and manage your created and saved recipes.</p>
+        </header>
+        
         <div className="my-recipes-tabs">
           <button
             className={`my-recipes-tab ${activeTab === 'created' ? 'active' : ''}`}
