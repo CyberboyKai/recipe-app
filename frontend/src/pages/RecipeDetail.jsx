@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useAuth from '../hooks/useAuth.js';
+import { useSavedRecipes } from "../hooks/useSavedRecipes";
 import CommentsSection from "../components/CommentSection.jsx";
 import RatingSummary from "../components/RatingSummary";
 import ReviewsSection from "../components/ReviewSection.jsx";
+import { BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
+import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 import "../styles.css";
 
 export default function RecipeDetail() {
     const { currentUser: user, isAuthLoading } = useAuth();
-    console.log("Current user in RecipeDetail:", user);
+    const { id } = useParams();
     const navigate = useNavigate();
     const [recipe, setRecipe] = useState(null);
-
+    const { savedIds, toggleSave } = useSavedRecipes();
+    const authReady = !isAuthLoading && user;
+    // only trust savedIds AFTER auth is ready
+    const isSaved = authReady && savedIds?.has(Number(id));
+    console.log(isSaved)
+    console.log(savedIds)
   // Set loading to false initially so the mock data displays right away
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -28,8 +36,6 @@ export default function RecipeDetail() {
         console.log(user.displayName);
     }
 
-    // useEffect is commented out so it doesn't overwrite your mock data with an API call
-    const { id } = useParams();
     useEffect(() => {
         async function fetchRecipe() {
             try {
@@ -57,13 +63,6 @@ export default function RecipeDetail() {
             fetchRecipe();
         }
     }, [id]);
-
-    const handleSaveToggle = () => {
-        setRecipe(prevRecipe => ({
-            ...prevRecipe,
-            saved: !prevRecipe.saved
-        }));
-    };
 
   if (isAuthLoading || loading) {
     return (
@@ -99,14 +98,19 @@ export default function RecipeDetail() {
         <div className="recipe-content-pane">
             <div className="recipe-header-row">
                 <h1 className="recipe-main-title">{recipe.title}</h1>
-                <div className="action-buttons-group">
-                    <button 
-                    onClick={handleSaveToggle}
-                    className={`btn-action save-toggle-btn ${recipe.saved ? 'is-saved' : 'is-unsaved'}`}
+                <button
+                    onClick={() => {
+                        if (!user) return;
+                        toggleSave(Number(id));
+                    }}
+                    className="absolute right-3 top-3 rounded-full bg-white/90 p-2 shadow hover:bg-white transition relative"
                     >
-                    {recipe.saved ? 'Saved' : 'Save'}
-                    </button>
-                </div>
+                    {isSaved ? (
+                        <BookmarkSolid className="h-10 w-10 text-blue-600" />
+                    ) : (
+                        <BookmarkOutline className="h-10 w-10 text-gray-600" />
+                    )}
+                </button>
             </div>
 
             <div className="recipe-sub-meta">
