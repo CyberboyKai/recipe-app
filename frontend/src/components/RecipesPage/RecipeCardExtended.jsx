@@ -62,7 +62,7 @@ export default function RecipeCardExtended({ recipe, onSave }) {
           </h3>
         </div>
 
-        <Link to={`/recipe/${id}`}>View Recipe</Link>
+        <Link to={`/recipes/${id}`}>View Recipe</Link>
 
         {author && (
           <div className="text-[11px] text-[#aaa] mt-2 overflow-hidden text-ellipsis whitespace-nowrap">
