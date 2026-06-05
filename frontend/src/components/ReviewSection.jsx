@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import "../pages/RecipeDetail.css";
 
 export default function ReviewsSection({ recipeId, currentUser }) {
@@ -8,28 +8,39 @@ export default function ReviewsSection({ recipeId, currentUser }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  const fetchReviews = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/recipes/${recipeId}/reviews`);
-      if (!res.ok) throw new Error("Failed to fetch reviews");
-      
-      const data = await res.json();
-      const formatted = data.map(r => ({ 
-        id: r.id, 
-        displayName: r.displayName, 
-        rating: r.rating, 
-        text: r.text, 
-        date: r.date 
-      }));
-      setReviews(formatted);
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-    }
-  }, [recipeId]);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
   useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]); 
+    let isMounted = true; 
+
+    const executeFetch = async () => {
+      try {
+        const res = await fetch(`/api/recipes/${recipeId}/reviews`);
+        if (!res.ok) throw new Error("Failed to fetch reviews");
+        
+        const data = await res.json();
+        const formatted = data.map(r => ({ 
+          id: r.id, 
+          displayName: r.displayName, 
+          rating: r.rating, 
+          text: r.text, 
+          date: r.date 
+        }));
+        
+        if (isMounted) {
+          setReviews(formatted);
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
+    executeFetch();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [recipeId, fetchTrigger]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +55,7 @@ export default function ReviewsSection({ recipeId, currentUser }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: currentUser?.uid, // Added safety check
+        userId: currentUser?.uid,
         displayName: currentUser?.displayName || "Anonymous",
         rating: formRating,
         text: formBody.trim(),
@@ -57,11 +68,13 @@ export default function ReviewsSection({ recipeId, currentUser }) {
       throw new Error("Failed to submit review");
     }
 
-    await fetchReviews();
+    setFetchTrigger(prev => prev + 1);
+    
     setFormRating(0);
     setFormBody("");
     setErrorMessage("");
   };
+
 
   const filteredReviews = reviews.filter((review) => {
     if (selectedFilter === "All") return true;
