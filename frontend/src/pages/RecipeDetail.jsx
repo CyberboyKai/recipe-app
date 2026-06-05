@@ -112,12 +112,12 @@ export default function RecipeDetail() {
                             toggleSave(id);
                         }
                     }}
-                    className="absolute right-3 top-3 rounded-full bg-white/90 p-2 shadow hover:bg-white transition relative"
+                    className="relative absolute right-2.5 top-2.5 bg-white/85 backdrop-blur-md border-none cursor-pointer rounded-lg px-2 py-1.5 flex items-center shadow-[0_1px_4px_rgba(0,0,0,0.12)] z-10"
                     >
                     {isSaved ? (
                         <BookmarkSolid className="h-10 w-10 text-blue-600" />
                     ) : (
-                        <BookmarkOutline className="h-10 w-10 text-gray-600" />
+                        <BookmarkOutline className="h-10 w-10 text-[#555]" />
                     )}
                 </button>
             </div>

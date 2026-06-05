@@ -110,7 +110,7 @@ export default function CommentsSection({ recipeId, currentUser }) {
         <div className="input-avatar-placeholder">👤</div>
         <div className="input-fields-box">
           <textarea 
-            placeholder="Write your review body here..." 
+            placeholder="Write any comments, questions, or concerns here..." 
             className="comment-form-text" 
             rows="3" 
             value={newCommentText}
