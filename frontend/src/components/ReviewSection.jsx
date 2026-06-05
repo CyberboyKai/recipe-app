@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "../pages/RecipeDetail.css";
 
 export default function ReviewsSection({ recipeId, currentUser }) {
