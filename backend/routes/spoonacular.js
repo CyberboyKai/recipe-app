@@ -43,7 +43,9 @@ router.get('/recipes/cached', async (_req, res) => {
       orderBy('savedAt', 'asc'),
     );
     const snapshot = await getDocs(recipesQuery);
-    const recipes = snapshot.docs.map((recipeDoc) => recipeDoc.data());
+    const recipes = snapshot.docs
+      .map((recipeDoc) => recipeDoc.data())
+      .filter((recipe) => recipe.source === 'official');
 
     res.json({ results: recipes });
   } catch (error) {
