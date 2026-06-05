@@ -52,7 +52,6 @@ export default function ReviewsSection({ recipeId, currentUser }) {
       });
 
       if (!res.ok) {
-        console.error("Backend error response:", data);
         throw new Error("Failed to submit review");
       }
       // re-fetch reviews
