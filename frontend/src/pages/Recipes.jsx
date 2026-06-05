@@ -214,7 +214,6 @@ export default function RecipePage() {
 
   useEffect(() => {
     if (!officialRecipes) loadOfficialRecipes();
-    if (!userRecipes) loadUserRecipes();
 
     function handleClickOutside(e) {
       if (filterRef.current && !filterRef.current.contains(e.target)) {
@@ -237,6 +236,7 @@ export default function RecipePage() {
 
   function handleSourceChange(source) {
     setSource(source);
+    if (source === "user") loadUserRecipes(); // always re-fetch on tab switch
     if (query.trim()) {
       searchRecipes(query, filters, source);
     } else {
