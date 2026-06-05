@@ -31,6 +31,7 @@ export default function RecipePage() {
 
   useEffect(() => {
     if (!officialRecipes) loadOfficialRecipes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const visible = useMemo(() => {
