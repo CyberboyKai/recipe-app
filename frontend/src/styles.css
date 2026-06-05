@@ -592,7 +592,6 @@ input {
   }
 }
 
-
 .message-bubble h3 {
   font-size: 18px;
   font-weight: 800;
@@ -618,4 +617,31 @@ input {
 
 .message-bubble p {
   margin-bottom: 12px;
+}
+
+/* ── Create / Edit Recipe form ── */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #252525;
+}
+
+.form-input {
+  border: 1px solid #d5d0c8;
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 180ms ease;
+  width: 100%;
+}
+
+.form-input:focus {
+  border-color: #171717;
 }

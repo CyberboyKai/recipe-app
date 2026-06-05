@@ -14,22 +14,9 @@ import { useNavigate } from 'react-router-dom';
 
 import { db } from '../firebase.js';
 import useAuth from '../hooks/useAuth.js';
-import salad from '../assets/salad.png';
 import RecipeCard from '../components/RecipeCard.jsx';
-import ReviewCard from '../components/ReviewCard.jsx';
 
-const placeholderReviews = [
-  {
-    name: 'Sarah M.',
-    quote: 'The recipes here are not only delicious but also easy to follow.',
-    position: 'left',
-  },
-  {
-    name: 'Farellin J.',
-    quote: "I've discovered a treasure trove of meatless recipes that have made my meals.",
-    position: 'right',
-  },
-];
+import { getHealthText } from "../services/healthScore";
 
 const MyRecipes = () => {
   const { currentUser: user } = useAuth();
@@ -37,7 +24,17 @@ const MyRecipes = () => {
   const [activeTab, setActiveTab] = useState('created');
   const [createdRecipes, setCreatedRecipes] = useState([]);
   const [savedRecipes, setSavedRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingCreated, setLoadingCreated] = useState(true);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+
+  const formatUserRecipe = (id, data) => ({
+    ...data,
+    id,
+    href: `/recipes/${id}`,
+    time: `${(data.prepTime ?? 0) + (data.cookTime ?? 0)} mins`,
+    servings: `${data.servings ?? 1} servings`,
+    healthScore: getHealthText(data.healthScore ?? 0),
+  });
 
   // redirect to login if not authenticated
   useEffect(() => {
@@ -54,7 +51,8 @@ const MyRecipes = () => {
         where('authorId', '==', user.uid)
       );
       const snapshot = await getDocs(q);
-      setCreatedRecipes(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setCreatedRecipes(snapshot.docs.map((d) => formatUserRecipe(d.id, d.data())));
+      setLoadingCreated(false);
     };
     fetchCreated();
   }, [user]);
@@ -68,7 +66,7 @@ const MyRecipes = () => {
 
       if (savedIds.length === 0) {
         setSavedRecipes([]);
-        setLoading(false);
+        setLoadingSaved(false);
         return;
       }
 
@@ -80,9 +78,9 @@ const MyRecipes = () => {
       setSavedRecipes(
         recipeDocs
           .filter((d) => d.exists())
-          .map((d) => ({ id: d.id, ...d.data() }))
+          .map((d) => formatUserRecipe(d.id, d.data()))
       );
-      setLoading(false);
+      setLoadingSaved(false);
     };
     fetchSaved();
   }, [user]);
@@ -90,6 +88,13 @@ const MyRecipes = () => {
   const handleDelete = async (recipeId) => {
     await deleteDoc(doc(db, 'recipes', recipeId));
     setCreatedRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+  };
+
+  const handlePublish = async (recipeId) => {
+    await updateDoc(doc(db, 'recipes', recipeId), { published: true });
+    setCreatedRecipes((prev) =>
+      prev.map((r) => (r.id === recipeId ? { ...r, published: true } : r))
+    );
   };
 
   const handleRemove = async (recipeId) => {
@@ -102,6 +107,8 @@ const MyRecipes = () => {
 
   const recipes = activeTab === 'created' ? createdRecipes : savedRecipes;
 
+  const loading = activeTab === 'created' ? loadingCreated : loadingSaved;
+
   if (user === undefined || loading) {
     return (
       <div className="app-shell" style={{ paddingTop: 80, textAlign: 'center' }}>
@@ -111,28 +118,13 @@ const MyRecipes = () => {
   }
 
   return (
-    <div className="app-shell">
+    <div className="max-w-[1200px] mx-auto px-8 py-12 text-[#111]">
       <main>
-        <section className="hero-section" aria-labelledby="my-recipes-title">
-          <div className="hero-copy">
-            <div className="hero-text">
-              <h1 id="my-recipes-title">Easy recipes for any occasion</h1>
-            </div>
-          </div>
-
-          <div className="hero-visual" aria-label="Featured dish">
-            <img src={salad} alt="Avocado egg bowl with broccoli and toast" />
-            {placeholderReviews.map((review) => (
-              <ReviewCard
-                key={review.name}
-                name={review.name}
-                quote={review.quote}
-                position={review.position}
-              />
-            ))}
-          </div>
-        </section>
-
+        <header className="mb-6 text-left">
+          <h1 className="text-[2.5rem] font-bold tracking-[-0.02em] text-black mb-2">My Recipes</h1>
+          <p className="text-[#666] text-base m-0">View and manage your created and saved recipes.</p>
+        </header>
+        
         <div className="my-recipes-tabs">
           <button
             className={`my-recipes-tab ${activeTab === 'created' ? 'active' : ''}`}
@@ -160,6 +152,20 @@ const MyRecipes = () => {
               {recipes.map((recipe) => (
                 <div key={recipe.id} className="my-recipe-card-wrapper">
                   <RecipeCard recipe={recipe} />
+                  {activeTab === 'created' && (
+                    <span style={{
+                      display: 'inline-block',
+                      marginTop: 6,
+                      padding: '2px 10px',
+                      borderRadius: 99,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: recipe.published ? '#e6f4ea' : '#fff3cd',
+                      color: recipe.published ? '#2d6a4f' : '#856404',
+                    }}>
+                      {recipe.published ? 'Published' : 'Pending Review'}
+                    </span>
+                  )}
                   {activeTab === 'created' ? (
                     <div className="my-recipe-actions">
                       <button
@@ -168,6 +174,14 @@ const MyRecipes = () => {
                       >
                         Edit
                       </button>
+                      {!recipe.published && (
+                        <button
+                          className="button ghost compact"
+                          onClick={() => handlePublish(recipe.id)}
+                        >
+                          Publish
+                        </button>
+                      )}
                       <button
                         className="button dark compact"
                         onClick={() => handleDelete(recipe.id)}

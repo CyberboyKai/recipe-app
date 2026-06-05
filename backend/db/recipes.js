@@ -1,6 +1,6 @@
 import express from "express";
 import db from "../firebase.js";
-import { collection, doc, setDoc, getDocs, deleteDoc, orderBy, query, where, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc, addDoc, updateDoc, getDocs, deleteDoc, orderBy, query, where, serverTimestamp } from "firebase/firestore";
 
 const router = express.Router();
 
@@ -78,6 +78,102 @@ router.get("/recipes/cached", async (req, res) => {
   } catch (err) {
     console.error("Cache fetch error:", err);
     res.status(500).json({ error: "Failed to fetch cached recipes" });
+  }
+});
+
+// POST — create a new user recipe
+router.post("/recipes/user", async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      healthScore,
+      ingredients,
+      instructions,
+      authorId,
+      author,
+    } = req.body;
+
+    if (!title || !authorId) {
+      return res.status(400).json({ error: "title and authorId are required" });
+    }
+
+    const docRef = await addDoc(collection(db, "recipes"), {
+      title,
+      description: description || "",
+      prepTime: prepTime || 0,
+      cookTime: cookTime || 0,
+      servings: servings || 1,
+      healthScore: healthScore || 0,
+      ingredients: ingredients || [],
+      instructions: instructions || [],
+      authorId,
+      author: author || "",
+      source: "user",
+      published: true,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    // store the Firestore doc ID as the recipe's id
+    await updateDoc(docRef, { id: docRef.id });
+
+    res.status(201).json({ id: docRef.id });
+  } catch (err) {
+    console.error("Create recipe error:", err);
+    res.status(500).json({ error: "Failed to create recipe" });
+  }
+});
+
+// PUT — update a user recipe (sets published: false)
+router.put("/recipes/user/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      healthScore,
+      ingredients,
+      instructions,
+    } = req.body;
+
+    const recipeRef = doc(db, "recipes", id);
+
+    await updateDoc(recipeRef, {
+      title,
+      description: description || "",
+      prepTime: prepTime || 0,
+      cookTime: cookTime || 0,
+      servings: servings || 1,
+      healthScore: healthScore || 0,
+      ingredients: ingredients || [],
+      instructions: instructions || [],
+      published: false,
+      updatedAt: serverTimestamp(),
+    });
+
+    res.json({ message: "Recipe updated, set to unpublished for review" });
+  } catch (err) {
+    console.error("Update recipe error:", err);
+    res.status(500).json({ error: "Failed to update recipe" });
+  }
+});
+
+// DELETE — delete a user recipe
+router.delete("/recipes/user/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await deleteDoc(doc(db, "recipes", id));
+    res.json({ message: "Recipe deleted" });
+  } catch (err) {
+    console.error("Delete recipe error:", err);
+    res.status(500).json({ error: "Failed to delete recipe" });
   }
 });
 

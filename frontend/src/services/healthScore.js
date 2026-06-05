@@ -1,6 +1,6 @@
 export function getHealthText(score) {
-  if (score >= 80) return "Highly Nutritious";
-  if (score >= 60) return "Well Balanced";
-  if (score >= 40) return "Moderately Balanced";
-  return "Less Balanced";
+  if (score >= 80) return "High Nutrition";
+  if (score >= 60) return "Good Nutrition";
+  if (score >= 40) return "Mid Nutrition";
+  return "Low Nutrition";
 }
