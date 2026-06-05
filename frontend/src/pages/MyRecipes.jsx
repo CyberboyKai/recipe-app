@@ -31,7 +31,9 @@ const MyRecipes = () => {
     ...data,
     id,
     href: `/recipes/${id}`,
-    time: `${(data.prepTime ?? 0) + (data.cookTime ?? 0)} mins`,
+    time: data.readyInMinutes
+      ? `${data.readyInMinutes} mins`
+      : `${(data.prepTime ?? 0) + (data.cookTime ?? 0)} mins`,
     servings: `${data.servings ?? 1} servings`,
     healthScore: getHealthText(data.healthScore ?? 0),
   });
