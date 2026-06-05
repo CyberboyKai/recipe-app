@@ -42,7 +42,7 @@ const App = () => {
             <Route path="/create-recipe" element={<CreateRecipePage />} />
             <Route path="/edit-recipe/:id" element={<EditRecipePage />} />
             <Route path="/recipes" element={<Recipes />} />
-        <Route path="/recipe/:id" element={<RecipeDetail />} />
+            <Route path="/recipes/:id" element={<RecipeDetail />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
