@@ -17,7 +17,12 @@ export default function RecipeDetail() {
     const { savedIds, toggleSave } = useSavedRecipes();
     const authReady = !isAuthLoading && user;
     // only trust savedIds AFTER auth is ready
-    const isSaved = authReady && savedIds?.has(Number(id));
+    let isSaved;
+    if (!Number.isNaN(Number(id))) {
+        isSaved = authReady && savedIds?.has(Number(id));
+    } else {
+        isSaved = authReady && savedIds?.has(id);
+    }
     console.log(isSaved)
     console.log(savedIds)
   // Set loading to false initially so the mock data displays right away
@@ -101,7 +106,11 @@ export default function RecipeDetail() {
                 <button
                     onClick={() => {
                         if (!user) return;
-                        toggleSave(Number(id));
+                        if (!Number.isNaN(Number(id))) {
+                            toggleSave(Number(id));
+                        } else {
+                            toggleSave(id);
+                        }
                     }}
                     className="absolute right-3 top-3 rounded-full bg-white/90 p-2 shadow hover:bg-white transition relative"
                     >
