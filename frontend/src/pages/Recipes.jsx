@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon, PhotoIcon, BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { Link } from 'react-router-dom';
+import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon, PhotoIcon, BookmarkIcon as BookmarkOutline, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 
 import { useRecipesData } from "../context/useRecipesData.js";
@@ -11,9 +12,13 @@ const RECIPE_SOURCE = {
 };
 
 // STAR RATING
-function StarRating({ value, max = 5 }) {
+function StarRating({ value, max = 5, compact = false }) {
+  if (compact) {
+    return `★ ${value}`; 
+  }
+
   return (
-    <div className="flex text-yellow-500 text-sm">
+    <div style={{ display: "flex", gap: 2, color: "#f59e0b", fontSize: 14 }}>
       {Array.from({ length: max }, (_, i) => (
         <span key={i}>{i < value ? "★" : "☆"}</span>
       ))}
@@ -21,112 +26,138 @@ function StarRating({ value, max = 5 }) {
   );
 }
 
+function getHealthText(score) {
+  if (score >= 80) return "Highly nutritious";
+  if (score >= 60) return "Well balanced";
+  if (score >= 40) return "Moderately balanced";
+  return "Less balanced";
+}
+
 // RECIPE CARD
 function RecipeCard({ recipe, onSave }) {
-  const { id, source, title, image, rating, difficulty, readyInMinutes, saved, author } = recipe;
+  const { id, source, title, image, rating, readyInMinutes, servings, saved, author, healthScore } = recipe;
+  const servingLabel = servings === 1 ? "1 serving" : `${servings} servings`;
 
   return (
-    <div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      {/* IMAGE */}
-      <div className="relative h-48 bg-gray-100 flex items-center justify-center">
+    <article className="recipe-card relative">
+
+      {/* IMAGE CONTAINER */}
+      <div className="relative w-full aspect-[1.62] overflow-hidden">
         {image ? (
-          <div className="relative h-full w-full">
-            <img src={image} alt={title} className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/10 to-transparent" />
-          </div>
+          <img 
+            src={image} 
+            alt={title} 
+            className="w-full h-full object-cover block"
+          />
         ) : (
-          <PhotoIcon className="h-14 w-14 text-gray-300" />
+          <div className="w-full h-full bg-[#f5f0ea] flex items-center justify-center">
+            <PhotoIcon className="w-12 h-12 text-[#d1c9be]" />
+          </div>
         )}
 
-        {/* SAVE BUTTON */}
+        {/* BOOKMARK */}
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            onSave(id);
-          }}
-          className="absolute right-3 top-3 rounded-full bg-white/90 p-2 shadow hover:bg-white transition"
+          onClick={(e) => { e.preventDefault(); onSave(id); }}
+          className="absolute right-2.5 top-2.5 bg-white/85 backdrop-blur-md border-none cursor-pointer rounded-lg px-2 py-1.5 flex items-center shadow-[0_1px_4px_rgba(0,0,0,0.12)] z-10"
         >
-          {saved ? (
-            <BookmarkSolid className="h-5 w-5 text-blue-600" />
-          ) : (
-            <BookmarkOutline className="h-5 w-5 text-gray-600" />
-          )}
+          {saved
+            ? <BookmarkSolid className="h-5 w-5 text-blue-600" />
+            : <BookmarkOutline className="h-5 w-5 text-[#555]" />}
         </button>
 
-        {/* BADGE */}
-        <div
-          className={`absolute left-3 top-3 rounded-full px-2 py-1 text-xs font-semibold text-white ${
-            source === RECIPE_SOURCE.OFFICIAL ? "bg-blue-500" : "bg-emerald-500"
-          }`}
-        >
+        {/* SOURCE BADGE */}
+        <div className="absolute bottom-2.5 left-3 bg-black/45 backdrop-blur-sm color-white text-[11px] font-bold tracking-wider uppercase rounded px-2 py-0.5 z-10 text-white">
           {source === RECIPE_SOURCE.OFFICIAL ? "Official" : "Community"}
         </div>
       </div>
 
-      {/* BODY */}
-      <div className="p-4">
-        <a
-          href={`/recipe/${id}`}
-          className="block text-lg font-semibold text-gray-900 hover:text-blue-600"
-        >
-          {title}
-        </a>
-
-        <div className="mt-2 flex items-center gap-1 text-sm text-gray-600">
-          <span>Rating: </span>
-          <StarRating value={rating} />
-        </div>
-
-        <div className="flex items-center gap-1 text-sm text-gray-600">
-          <span>Difficulty: </span>
-          <StarRating value={difficulty} />
-        </div>
-
-        <div className="flex items-center gap-1 text-sm text-gray-600">
-          <span>Time: </span>
-          {readyInMinutes} min
-        </div>
-
-        {/* FOR USER GENERATOR RECIPES */}
-        {author && (
-          <div className="mt-1 text-xs text-gray-400">by @{author}</div>
+      {/* META BAR */}
+      <div className="recipe-meta flex items-center gap-2.5">
+        {readyInMinutes > 0 && <span>{readyInMinutes} min</span>}
+        {servings > 0 && <span>{servingLabel}</span>}
+        {healthScore > 0 && (
+          <span>{getHealthText(healthScore)}</span>
         )}
       </div>
-    </div>
+
+      {/* BODY */}
+      <div className="recipe-body flex flex-col">
+        <div className="mb-1">
+          <h3>
+            {title}
+            {rating > 0 && (
+              <span className="text-[#f59e0b] font-medium text-sm ml-2 whitespace-nowrap inline-block align-middle">
+                <StarRating value={rating} compact={true} />
+              </span>
+            )}
+          </h3>
+        </div>
+
+        <Link to={`/recipe/${id}`}>View Recipe</Link>
+
+        {author && (
+          <div className="text-[11px] text-[#aaa] mt-2 overflow-hidden text-ellipsis whitespace-nowrap">
+            by @{author}
+          </div>
+        )}
+      </div>
+
+    </article>
   );
 }
 
-// FILTER BAR
-function FilterBar({ filters, onChange }) {
+// FILTER POPOVER
+function FilterPopover({ filters, onChange, onClose }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-      <div className="text-sm font-semibold text-gray-700">Max Time</div>
-      <select
-        className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
-        value={filters.maxTime}
-        onChange={(e) =>
-          onChange({ ...filters, maxTime: Number(e.target.value) })
-        }
-      >
-        <option value={999}>Any</option>
-        <option value={15}>Under 15 min</option>
-        <option value={30}>Under 30 min</option>
-        <option value={60}>Under 60 min</option>
-      </select>
+    <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-2xl border border-gray-100 bg-white p-4 shadow-xl">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-sm font-semibold text-gray-800">Filter Recipes</span>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+      </div>
 
-      <div className="text-sm font-semibold text-gray-700">Difficulty</div>
-      <select
-        className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
-        value={filters.maxDifficulty}
+      {/* Cook Time */}
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+        Max Cook Time (minutes)
+      </label>
+      <input
+        type="number"
+        min={1}
+        placeholder="e.g. 45"
+        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm mb-3"
+        value={filters.maxTime === 999 ? "" : filters.maxTime}
         onChange={(e) =>
-          onChange({ ...filters, maxDifficulty: Number(e.target.value) })
+          onChange({ ...filters, maxTime: e.target.value === "" ? 999 : Number(e.target.value) })
         }
+      />
+
+      {/* Servings */}
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+        Servings
+      </label>
+      <input
+        type="number"
+        min={1}
+        placeholder="e.g. 4"
+        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm mb-3"
+        value={filters.servings === 0 ? "" : filters.servings}
+        onChange={(e) =>
+          onChange({ ...filters, servings: e.target.value === "" ? 0 : Number(e.target.value) })
+        }
+      />
+
+      {/* Nutrition Level */}
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+        Nutrition Level
+      </label>
+      <select
+        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+        value={filters.minHealthScore}
+        onChange={(e) => onChange({ ...filters, minHealthScore: Number(e.target.value) })}
       >
-        <option value={5}>Any</option>
-        <option value={1}>★</option>
-        <option value={2}>★★</option>
-        <option value={3}>★★★</option>
-        <option value={4}>★★★★</option>
+        <option value={0}>Any</option>
+        <option value={80}>Highly nutritious (80+)</option>
+        <option value={60}>Well balanced (60+)</option>
+        <option value={40}>Moderately balanced (40+)</option>
       </select>
     </div>
   );
@@ -144,6 +175,7 @@ export default function RecipePage() {
     loadOfficialRecipes,
     loadUserRecipes,
     searchRecipes,
+    refreshRecipes,
   } = useRecipesData();
 
   const { savedIds, toggleSave } = useSavedRecipes();
@@ -152,82 +184,110 @@ export default function RecipePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     maxTime: 999,
-    maxDifficulty: 5,
+    minHealthScore: 0,
+    servings: 0, // 0 = any
   });
 
+  const filterRef = useRef(null);
+
   useEffect(() => {
-    loadOfficialRecipes();
-    loadUserRecipes();
+    if (!officialRecipes) loadOfficialRecipes();
+    if (!userRecipes) loadUserRecipes();
+
+    function handleClickOutside(e) {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setShowFilters(false);
+      }
+    }
+    if (showFilters) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [showFilters]);
 
   const visible = useMemo(() => {
     if (searchResults) return searchResults;
-
-    if (activeSource === RECIPE_SOURCE.OFFICIAL) {
-      return officialRecipes || [];
-    }
-    // else return the userRecipes
-    return userRecipes || [];
+    return activeSource === "official" ? (officialRecipes || []) : (userRecipes || []);
   }, [activeSource, officialRecipes, userRecipes, searchResults]);
 
-  // search when the enter key is hit to avoid repeat API calls
   function handleKeyDown(e) {
-    if (e.key === "Enter") {
-      searchRecipes(query, filters);
+    if (e.key === "Enter") searchRecipes(query, filters);
+  }
+
+  function handleSourceChange(source) {
+    setSource(source);
+    if (query.trim()) {
+      searchRecipes(query, filters, source);
+    } else {
+      setSearchResults(null); // let the toggle show cached data normally
     }
   }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
-      {/* TOOLBAR */}
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        {/* FILTER BUTTON */}
-        <button
-          onClick={() => setShowFilters((v) => !v)}
-          className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm shadow-sm hover:bg-gray-100"
-        >
-          <AdjustmentsHorizontalIcon className="h-5 w-5" />
-          Filters
-        </button>
-
-        {/* SEARCH */}   
-        <div className="relative flex flex-1 min-w-[220px] items-center">
+      
+      {/* TOOLBAR: Changed to a responsive grid/flex combo */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+        
+        <div className="flex flex-1 items-center gap-2">
+          {/* REFRESH */}
           <button
-            onClick={() => searchRecipes(query, filters)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+            onClick={refreshRecipes}
+            disabled={loading}
+            title="Refresh recipes"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:bg-gray-100 disabled:opacity-50 sm:w-auto sm:px-4 sm:gap-2"
           >
-            <MagnifyingGlassIcon className="h-5 w-5" />
+            <ArrowPathIcon className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+            <span title="Discover new recipes" className="hidden sm:inline text-sm font-medium">Discover</span>
           </button>
 
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search recipes..."
-            className="w-full rounded-full border border-gray-200 py-2.5 pl-10 pr-4 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          {/* SEARCH BAR + FILTER POPOVER */}
+          <div className="relative flex flex-1 items-center">
+            <MagnifyingGlassIcon className="absolute left-3.5 h-5 w-5 text-gray-400" />
+
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Search recipes..."
+              className="w-full rounded-full border border-gray-200 py-2.5 pl-11 pr-12 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            {/* FILTER TOGGLE */}
+            <div className="absolute right-2" ref={filterRef}>
+              <button
+                onClick={() => setShowFilters((v) => !v)}
+                className={`p-1.5 rounded-full transition-colors ${
+                  showFilters ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:bg-gray-100'
+                }`}
+              >
+                <AdjustmentsHorizontalIcon className="h-5 w-5" />
+              </button>
+
+              {showFilters && (
+                <FilterPopover
+                  filters={filters}
+                  onChange={setFilters}
+                  onClose={() => setShowFilters(false)}
+                />
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* TOGGLE */}
-        <div className="ml-auto flex rounded-full bg-gray-100 p-1 text-sm">
+        {/* TOGGLE: Full width on mobile, auto width on desktop */}
+        <div className="flex rounded-full bg-gray-100 p-1 text-sm sm:w-auto">
           <button
-            onClick={() => setSource("official")}
-            className={`rounded-full px-4 py-1 transition ${
-              activeSource === "official"
-                ? "bg-white shadow"
-                : "text-gray-500"
+            onClick={() => handleSourceChange("official")}
+            className={`flex-1 rounded-full px-6 py-1.5 transition sm:flex-none ${
+              activeSource === "official" ? "bg-white shadow font-medium" : "text-gray-500"
             }`}
           >
             Official
           </button>
-
           <button
-            onClick={() => setSource("user")}
-            className={`rounded-full px-4 py-1 transition ${
-              activeSource === "user"
-                ? "bg-white shadow"
-                : "text-gray-500"
+            onClick={() => handleSourceChange("user")}
+            className={`flex-1 rounded-full px-6 py-1.5 transition sm:flex-none ${
+              activeSource === "user" ? "bg-white shadow font-medium" : "text-gray-500"
             }`}
           >
             Community
@@ -235,16 +295,16 @@ export default function RecipePage() {
         </div>
       </div>
 
-      {/* FILTERS */}
-      {showFilters && <FilterBar filters={filters} onChange={setFilters} />}
-
       {/* CONTENT */}
-      {loading || visible === null ? (
-        <p className="text-center text-gray-400">Loading recipes...</p>
+      {loading && !visible.length ? (
+        <div className="py-20 text-center">
+           <ArrowPathIcon className="mx-auto h-8 w-8 animate-spin text-gray-300" />
+           <p className="mt-2 text-gray-400">Fetching deliciousness...</p>
+        </div>
       ) : visible.length === 0 ? (
-        <p className="text-center text-gray-400">No recipes found.</p>
+        <p className="py-20 text-center text-gray-400">No recipes found matching your search.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((recipe) => (
             <RecipeCard
               key={recipe.id}

@@ -6,7 +6,7 @@ const router = express.Router();
 
 // search for official recipes
 router.get("/recipes", async (req, res) => {
-  const { query: searchQuery = "", maxReadyTime = "", number = 18 } = req.query;
+  const { query: searchQuery = "", maxReadyTime = "", servings = "", healthScore = "", number = 18 } = req.query;
 
   try {
     if (!process.env.SPOONACULAR_API_KEY) {
@@ -19,6 +19,8 @@ router.get("/recipes", async (req, res) => {
     url.searchParams.append("number", number);
     // matchReadyTime: The maximum time in minutes it should take to prepare AND cook the recipe.
     if (maxReadyTime) url.searchParams.append("maxReadyTime", maxReadyTime);
+    if (servings) url.searchParams.append("servings", servings);
+    if (healthScore) url.searchParams.append("healthScore", healthScore);
     // addRecipeInformation needs to be set to true to fetch maxReadyTime
     url.searchParams.append("addRecipeInformation", "true");
 
@@ -76,9 +78,9 @@ router.get("/recipes/random", async (req, res) => {
         readyInMinutes: recipe.readyInMinutes ?? 0,
         source: "official",
         rating: 0,
-        difficulty: 0,
-        saved: false,
         savedAt: serverTimestamp(),
+        servings: recipe.servings ?? 0,
+        healthScore: recipe.healthScore ?? 0,
       })
     );
     await Promise.all(writes);
@@ -125,6 +127,7 @@ router.get("/recipe/:id", async (req, res) => {
       image: data.image ?? null,
       summary: data.summary,
       servings: data.servings ?? 0,
+      healthScore: data.healthScore ?? 0,
       readyInMinutes: data.readyInMinutes ?? 0,
       preparationMinutes: data.preparationMinutes ?? 0,
       cookingMinutes: data.cookingMinutes ?? 0,
