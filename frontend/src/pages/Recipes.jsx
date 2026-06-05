@@ -175,6 +175,7 @@ export default function RecipePage() {
     loadOfficialRecipes,
     loadUserRecipes,
     searchRecipes,
+    setSearchResults,
     refreshRecipes,
   } = useRecipesData();
 

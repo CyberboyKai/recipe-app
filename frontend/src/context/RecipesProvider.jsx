@@ -166,6 +166,7 @@ export function RecipesProvider({ children }) {
 
         officialRecipes,
         userRecipes,
+        setSearchResults,
         searchResults,
 
         loading,
