@@ -1,8 +1,6 @@
 import { useState, useRef } from 'react';
 import { RecipesContext } from './RecipesContext';
 
-let isFetchingRandom = false;
-
 export function RecipesProvider({ children }) {
   const [activeSource, setActiveSource] = useState("official");
 
