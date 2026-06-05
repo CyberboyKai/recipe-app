@@ -107,7 +107,18 @@ function RecipeCard({ recipe, onSave }) {
 }
 
 // FILTER POPOVER
-function FilterPopover({ filters, onChange, onClose }) {
+function FilterPopover({ filters, onChange, onClose, onSearch }) {
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      onSearch();
+      onClose();
+    }
+  }
+
+  function handleReset() {
+    onChange({ maxTime: 999, minHealthScore: 0, servings: 0 });
+  }
+
   return (
     <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-2xl border border-gray-100 bg-white p-4 shadow-xl">
       <div className="flex items-center justify-between mb-3">
@@ -125,6 +136,7 @@ function FilterPopover({ filters, onChange, onClose }) {
         placeholder="e.g. 45"
         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm mb-3"
         value={filters.maxTime === 999 ? "" : filters.maxTime}
+        onKeyDown={handleKeyDown}
         onChange={(e) =>
           onChange({ ...filters, maxTime: e.target.value === "" ? 999 : Number(e.target.value) })
         }
@@ -140,6 +152,7 @@ function FilterPopover({ filters, onChange, onClose }) {
         placeholder="e.g. 4"
         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm mb-3"
         value={filters.servings === 0 ? "" : filters.servings}
+        onKeyDown={handleKeyDown}
         onChange={(e) =>
           onChange({ ...filters, servings: e.target.value === "" ? 0 : Number(e.target.value) })
         }
@@ -159,6 +172,14 @@ function FilterPopover({ filters, onChange, onClose }) {
         <option value={60}>Well balanced (60+)</option>
         <option value={40}>Moderately balanced (40+)</option>
       </select>
+
+      {/* RESET */}
+      <button
+        onClick={handleReset}
+        className="mt-4 w-full rounded-lg border border-gray-200 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+      >
+        Reset Filters
+      </button>
     </div>
   );
 }
@@ -256,7 +277,7 @@ export default function RecipePage() {
             {/* CLEAR BUTTON */}
             {query && (
               <button
-                onClick={() => { setQuery(""); setSearchResults(null); }}
+                onClick={() => { setQuery(""); setFilters({ maxTime: 999, minHealthScore: 0, servings: 0 }); }}
                 className="absolute right-10 text-gray-400 hover:text-gray-600 mr-2"
               >
                 ✕
@@ -279,6 +300,7 @@ export default function RecipePage() {
                   filters={filters}
                   onChange={setFilters}
                   onClose={() => setShowFilters(false)}
+                  onSearch={() => searchRecipes(query, filters)}
                 />
               )}
             </div>
