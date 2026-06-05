@@ -61,7 +61,7 @@ const CreateRecipePage = () => {
         authorId: user.uid,
         author: user.displayName || user.email,
         source: 'user',
-        published: true,
+        published: false,
         // RecipeCard display fields
         time: `${Number(prepTime) + Number(cookTime) || 0} mins`,
         level: `${getHealthText(Number(healthScore)) || 0}`,
