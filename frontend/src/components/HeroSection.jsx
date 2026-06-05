@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import saladImage from '../assets/salad.png';
 import ReviewCard from './ReviewCard.jsx';
 
+import useAuth from '../hooks/useAuth.js';
+
 const HeroSection = ({ reviews }) => {
+  const { currentUser } = useAuth();
+
   return (
     <section className="hero-section" aria-labelledby="hero-title">
       <div className="hero-copy">
@@ -15,7 +19,7 @@ const HeroSection = ({ reviews }) => {
             the team.
           </p>
         </div>
-        <Link className="button primary" to="/login">
+        <Link className="button primary" to={currentUser ? '/recipes' : '/signup'}>
           Start cooking
         </Link>
       </div>
