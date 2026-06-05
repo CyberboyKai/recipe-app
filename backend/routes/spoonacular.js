@@ -1,43 +1,94 @@
-import express from "express";
-import db from "../firebase.js";
-import { collection, doc, setDoc, getDocs, deleteDoc, orderBy, query, limit, serverTimestamp } from "firebase/firestore";
+import express from 'express';
+import {
+  collection,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
+
+import db from '../firebase.js';
 
 const router = express.Router();
 
-// search for official recipes
-router.get("/recipes", async (req, res) => {
-  const { query: searchQuery = "", maxReadyTime = "", servings = "", healthScore = "", number = 18 } = req.query;
+const normalizeRecipe = (recipe) => ({
+  id: recipe.id,
+  title: recipe.title,
+  image: recipe.image ?? null,
+  readyInMinutes: recipe.readyInMinutes ?? recipe.timeMinutes ?? 0,
+  servings: recipe.servings ?? 2,
+  source: recipe.source ?? 'official',
+  rating: recipe.rating ?? 0,
+  healthScore: recipe.healthScore ?? 0,
+  savedAt: serverTimestamp(),
+});
+
+const getSpoonacularUrl = (path) => {
+  if (!process.env.SPOONACULAR_API_KEY) {
+    throw new Error('SPOONACULAR_API_KEY is not defined');
+  }
+
+  const url = new URL(`https://api.spoonacular.com${path}`);
+  url.searchParams.append('apiKey', process.env.SPOONACULAR_API_KEY);
+
+  return url;
+};
+
+router.get('/recipes/cached', async (_req, res) => {
+  try {
+    const recipesQuery = query(
+      collection(db, 'recipes'),
+      orderBy('savedAt', 'asc'),
+    );
+    const snapshot = await getDocs(recipesQuery);
+    const recipes = snapshot.docs.map((recipeDoc) => recipeDoc.data());
+
+    res.json({ results: recipes });
+  } catch (error) {
+    console.error('Cache fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch cached recipes' });
+  }
+});
+
+router.get('/recipes', async (req, res) => {
+  const { query: searchQuery = '', maxReadyTime = '', number = 18 } = req.query;
 
   try {
-    if (!process.env.SPOONACULAR_API_KEY) {
-      return res.status(500).json({ error: "SPOONACULAR_API_KEY is not defined" });
+    const url = getSpoonacularUrl('/recipes/complexSearch');
+
+    if (searchQuery) {
+      url.searchParams.append('query', searchQuery);
     }
 
-    const url = new URL("https://api.spoonacular.com/recipes/complexSearch");
-    url.searchParams.append("apiKey", process.env.SPOONACULAR_API_KEY);
-    if (searchQuery) url.searchParams.append("query", searchQuery);
-    url.searchParams.append("number", number);
-    // matchReadyTime: The maximum time in minutes it should take to prepare AND cook the recipe.
-    if (maxReadyTime) url.searchParams.append("maxReadyTime", maxReadyTime);
-    // addRecipeInformation needs to be set to true to fetch maxReadyTime
-    url.searchParams.append("addRecipeInformation", "true");
+    url.searchParams.append('number', number);
+    url.searchParams.append('addRecipeInformation', 'true');
 
-    console.log("Calling Spoonacular:", url.toString());
+    if (maxReadyTime) {
+      url.searchParams.append('maxReadyTime', maxReadyTime);
+    }
 
     const response = await fetch(url);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Spoonacular Error:", errorText);
-      return res.status(response.status).json({ error: "Spoonacular request failed", details: errorText });
+      const details = await response.text();
+      console.error('Spoonacular Error:', details);
+      return res.status(response.status).json({
+        error: 'Spoonacular request failed',
+        details,
+      });
     }
 
     const data = await response.json();
 
     res.json(data);
-  } catch (err) {
-    console.error("Recipes Route Error:", err);
-    res.status(500).json({ error: "Failed to fetch recipes", details: err.message });
+  } catch (error) {
+    console.error('Recipes Route Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch recipes',
+      details: error.message,
+    });
   }
 });
 
@@ -92,34 +143,29 @@ router.get("/recipes/random", async (req, res) => {
 });
 
 // get specific recipe
-router.get("/recipe/:id", async (req, res) => {
+router.get('/recipe/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    if (!process.env.SPOONACULAR_API_KEY) {
-      return res.status(500).json({ error: "SPOONACULAR_API_KEY is not defined" });
-    }
-
-    const url = new URL(`https://api.spoonacular.com/recipes/${id}/information`);
-    url.searchParams.append("apiKey", process.env.SPOONACULAR_API_KEY);
-    url.searchParams.append("includeNutrition", "false");
-    url.searchParams.append("addWinePairing", "false");
-    url.searchParams.append("addTasteData", "false");
-
-    console.log("Calling Spoonacular:", url.toString());
+    const url = getSpoonacularUrl(`/recipes/${id}/information`);
+    url.searchParams.append('includeNutrition', 'false');
+    url.searchParams.append('addWinePairing', 'false');
+    url.searchParams.append('addTasteData', 'false');
 
     const response = await fetch(url);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Spoonacular Error:", errorText);
-      return res.status(response.status).json({ error: "Spoonacular request failed", details: errorText });
+      const details = await response.text();
+      console.error('Spoonacular Error:', details);
+      return res.status(response.status).json({
+        error: 'Spoonacular request failed',
+        details,
+      });
     }
 
     const data = await response.json();
 
-    // save full detail to Firestore so repeat visits to the ID are free
-    await setDoc(doc(db, "recipes", String(id)), {
+    await setDoc(doc(db, 'recipes', String(id)), {
       id: data.id,
       title: data.title,
       image: data.image ?? null,
@@ -129,13 +175,13 @@ router.get("/recipe/:id", async (req, res) => {
       readyInMinutes: data.readyInMinutes ?? 0,
       preparationMinutes: data.preparationMinutes ?? 0,
       cookingMinutes: data.cookingMinutes ?? 0,
-      ingredients: (data.extendedIngredients || []).map(ing => ({
-        id: ing.id,
-        name: ing.name,
-        amount: ing.amount,
-        unit: ing.unit,
+      ingredients: (data.extendedIngredients || []).map((ingredient) => ({
+        id: ingredient.id,
+        name: ingredient.name,
+        amount: ingredient.amount,
+        unit: ingredient.unit,
       })),
-      instructions: (data.analyzedInstructions?.[0]?.steps || []).map(step => ({
+      instructions: (data.analyzedInstructions?.[0]?.steps || []).map((step) => ({
         number: step.number,
         step: step.step,
       })),
@@ -143,9 +189,12 @@ router.get("/recipe/:id", async (req, res) => {
     });
 
     res.json(data);
-  } catch (err) {
-    console.error("Recipe Route Error:", err);
-    res.status(500).json({ error: "Failed to fetch recipe", details: err.message });
+  } catch (error) {
+    console.error('Recipe Route Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch recipe',
+      details: error.message,
+    });
   }
 });
 

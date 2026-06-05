@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { PhotoIcon, BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 import StarRating from "./StarRating";
-import { getHealthText } from "../../data/healthScore";
+import { getHealthText } from "../../services/healthScore";
 
 const RECIPE_SOURCE = {
   OFFICIAL: "official",

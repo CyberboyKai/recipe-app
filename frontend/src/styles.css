@@ -284,6 +284,12 @@ input {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.recipes-status {
+  color: #7d7770;
+  font-size: 0.95rem;
+  margin: 0 0 24px;
+}
+
 .recipe-card {
   background: #ffffff;
   border: 1px solid #f0ece6;
@@ -316,9 +322,9 @@ input {
   background: #f7fbf3;
   color: #0b7130;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-size: 13px;
+  flex-wrap: nowrap;
+  gap: 8px;
+  font-size: 12.5px;
   font-weight: 800;
   padding: 10px 16px;
 }
@@ -327,6 +333,14 @@ input {
   align-items: center;
   display: inline-flex;
   gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0; 
+}
+
+@media (max-width: 1200px) {
+  .recipe-meta {
+    flex-wrap: wrap;
+  }
 }
 
 .recipe-meta span::before {
