@@ -93,56 +93,6 @@ router.get('/recipes', async (req, res) => {
 });
 
 // GET random recipes -- called only when recipes collection is empty
-router.get("/recipes/random", async (req, res) => {
-  try {
-    if (!process.env.SPOONACULAR_API_KEY) {
-      return res.status(500).json({ error: "SPOONACULAR_API_KEY is not defined" });
-    }
-
-    const url = new URL("https://api.spoonacular.com/recipes/random");
-    url.searchParams.append("apiKey", process.env.SPOONACULAR_API_KEY);
-    url.searchParams.append("number", 18);
-    url.searchParams.append("includeNutrition", "false");
-
-    console.log("Calling Spoonacular:", url.toString());
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Spoonacular Error:", errorText);
-      return res.status(response.status).json({ error: "Spoonacular request failed", details: errorText });
-    }
-
-    const data = await response.json();
-
-    // save results to Firestore
-    // TODO: define a method for fetching/posting rating and difficulty
-    console.log("Saving to Firestore:", data.recipes?.length, "recipes");
-    const writes = (data.recipes || []).map((recipe) =>
-      setDoc(doc(db, "recipes", String(recipe.id)), {
-        id: recipe.id,
-        title: recipe.title,
-        image: recipe.image ?? null,
-        readyInMinutes: recipe.readyInMinutes ?? 0,
-        source: "official",
-        rating: 0,
-        savedAt: serverTimestamp(),
-        servings: recipe.servings ?? 0,
-        healthScore: recipe.healthScore ?? 0,
-      })
-    );
-    await Promise.all(writes);
-    console.log("Random recipes saved:", writes.length);
-
-    res.json({ results: data.recipes });
-  } catch (err) {
-    console.error("Random recipes error:", err);
-    res.status(500).json({ error: "Failed to fetch random recipes", details: err.message });
-  }
-});
-
-// get specific recipe
 router.get('/recipe/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -150,28 +100,40 @@ router.get('/recipe/:id', async (req, res) => {
     const recipeRef = doc(db, "recipes", String(id));
     const recipeSnap = await getDoc(recipeRef);
 
-    // check Firestore first
+    let cachedRecipe = null;
+
     if (recipeSnap.exists()) {
-      const cachedRecipe = recipeSnap.data();
-
-      const hasIngredients =
-        Array.isArray(cachedRecipe.ingredients) &&
-        cachedRecipe.ingredients.length > 0;
-
-      const hasInstructions =
-        Array.isArray(cachedRecipe.instructions) &&
-        cachedRecipe.instructions.length > 0;
-
-      if (hasIngredients && hasInstructions) {
-        console.log(`Serving recipe ${id} from Firestore`);
-        return res.json(cachedRecipe);
-      }
-
-      console.log(
-        `Recipe ${id} exists but missing ingredients/instructions. Refreshing from Spoonacular.`
-      );
+      cachedRecipe = recipeSnap.data();
     }
-    
+
+    // user-created recipe 
+    if (cachedRecipe?.source === "user") {
+      console.log(`Serving USER recipe ${id} from Firestore`);
+
+      return res.json({
+        ...cachedRecipe,
+
+        // normalize fields so frontend stays consistent
+        summary: cachedRecipe.description ?? "",
+        preparationMinutes: cachedRecipe.prepTime ?? 0,
+        cookingMinutes: cachedRecipe.cookTime ?? 0,
+        instructions: (cachedRecipe.instructions || []).map(
+          (instruction, index) => ({
+            number: index + 1,
+            step: instruction,
+          })
+        ),
+        ingredients: cachedRecipe.ingredients ?? [],
+      });
+    }
+
+    // offcial recipe fetched (or cache fallback)
+    if (cachedRecipe?.source === "official" && cachedRecipe?.ingredients?.length) {
+      console.log(`Serving OFFICIAL recipe ${id} from Firestore cache`);
+      return res.json(cachedRecipe);
+    }
+
+    // Otherwise fetch from API
     if (!process.env.SPOONACULAR_API_KEY) {
       return res.status(500).json({ error: "SPOONACULAR_API_KEY is not defined" });
     }
@@ -182,34 +144,37 @@ router.get('/recipe/:id', async (req, res) => {
     url.searchParams.append("addWinePairing", "false");
     url.searchParams.append("addTasteData", "false");
 
-    console.log("Calling Spoonacular:", url.toString());
-
     const response = await fetch(url);
 
     if (!response.ok) {
       const details = await response.text();
-      console.error('Spoonacular Error:', details);
       return res.status(response.status).json({
-        error: 'Spoonacular request failed',
+        error: "Spoonacular request failed",
         details,
       });
     }
 
     const data = await response.json();
 
+    // normalize Spoonacular
     const recipeData = {
       id: data.id,
+      source: "official",
+
       title: data.title,
       image: data.image ?? null,
       summary: data.summary,
+
       servings: data.servings ?? 0,
       healthScore: data.healthScore ?? 0,
+
       readyInMinutes: data.readyInMinutes ?? 0,
       preparationMinutes: data.preparationMinutes ?? 0,
       cookingMinutes: data.cookingMinutes ?? 0,
-      healthScore: data.healthScore ?? 0,
+
       author: data.sourceName ?? null,
-      url: data.sourceUrl ?? null, 
+      url: data.sourceUrl ?? null,
+
       ingredients: (data.extendedIngredients || []).map(ing => ({
         id: ing.id,
         name: ing.name,
@@ -217,22 +182,23 @@ router.get('/recipe/:id', async (req, res) => {
         unit: ing.unit,
       })),
 
-      instructions: (
-        data.analyzedInstructions?.[0]?.steps || []
-      ).map(step => ({
+      instructions: (data.analyzedInstructions?.[0]?.steps || []).map(step => ({
         number: step.number,
         step: step.step,
       })),
     };
 
-    // save full detail to Firestore so repeat visits to the ID are free
-    // use merge: true to make sure not to ovewrite prev data
-    await setDoc(doc(db, "recipes", String(id)), recipeData, { merge: true });
+    // cache/update Firestore
+    await setDoc(recipeRef, recipeData, { merge: true });
 
-    res.json(recipeData);
+    return res.json(recipeData);
+
   } catch (err) {
     console.error("Recipe Route Error:", err);
-    res.status(500).json({ error: "Failed to fetch recipe", details: err.message });
+    res.status(500).json({
+      error: "Failed to fetch recipe",
+      details: err.message,
+    });
   }
 });
 

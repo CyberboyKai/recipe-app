@@ -21,9 +21,7 @@ export default function ReviewsSection({ recipeId, currentUser }) {
         displayName: r.displayName,
         rating: r.rating,
         text: r.text,
-        date: r.date?.seconds
-          ? new Date(r.date.seconds * 1000).toLocaleDateString()
-          : "Recently",
+        date: r.date
       }));
 
       setReviews(formatted);
@@ -70,7 +68,7 @@ export default function ReviewsSection({ recipeId, currentUser }) {
         displayName: currentUser.displayName,
         rating: formRating,
         text: formBody,
-        date: new Date().toLocaleDateString(),
+        date: new Date(),
       };
 
       await fetchReviews();
