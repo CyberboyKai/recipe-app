@@ -21,8 +21,7 @@ const normalizeRecipe = (recipe) => ({
   servings: recipe.servings ?? 2,
   source: recipe.source ?? 'official',
   rating: recipe.rating ?? 0,
-  difficulty: recipe.difficulty ?? 0,
-  saved: recipe.saved ?? false,
+  healthScore: recipe.healthScore ?? 0,
   savedAt: serverTimestamp(),
 });
 

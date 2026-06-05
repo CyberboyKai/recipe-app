@@ -10,7 +10,7 @@ const RecipeCard = ({ recipe }) => {
       <div className="recipe-meta">
         <span>{recipe.time}</span>
         <span>{recipe.servings}</span>
-        <span>{recipe.level}</span>
+        <span>{recipe.healthScore}</span>
       </div>
       <div className="recipe-body">
         <h3>{recipe.title}</h3>

@@ -1,3 +1,5 @@
+import { getHealthText } from "../services/healthScore";
+
 const getRecipeUrl = (recipe) => {
   if (!Number.isFinite(Number(recipe.id))) {
     return '/recipes';
@@ -17,7 +19,7 @@ const formatRecipe = (recipe) => ({
   title: recipe.title,
   time: `${recipe.timeMinutes ?? recipe.readyInMinutes ?? 0} Mins`,
   servings: `${recipe.servings ?? 2} Serving`,
-  level: recipe.difficulty ? `Level ${recipe.difficulty}` : 'Easy',
+  healthScore: getHealthText(`${recipe.healthScore ?? 0}`),
   image: recipe.image,
 });
 
