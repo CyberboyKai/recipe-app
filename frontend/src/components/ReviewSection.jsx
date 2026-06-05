@@ -3,69 +3,64 @@ import "../pages/RecipeDetail.css";
 
 export default function ReviewsSection({ recipeId, currentUser }) {
   const [reviews, setReviews] = useState([]);
-  const [formRating, setFormRating] = useState(0); 
+  const [formRating, setFormRating] = useState(0);
   const [formBody, setFormBody] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  // Filter Selection State ("All", 5, 4, 3, 2, 1)
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const res = await fetch(`/api/recipes/${recipeId}/reviews`);
-        if (!res.ok) throw new Error("Failed to fetch reviews");
-        
-        const data = await res.json();
-        const formatted = data.map(r => ({ 
-          id: r.id, 
-          displayName: r.displayName, 
-          rating: r.rating, 
-          text: r.text, 
-          date: r.date 
-        }));
-        
-        setReviews(formatted);
-      } catch (error) {
-        console.error("Error fetching reviews:", error);
-      }
-    };
-
-    fetchReviews();
+  const fetchReviews = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/recipes/${recipeId}/reviews`);
+      if (!res.ok) throw new Error("Failed to fetch reviews");
+      
+      const data = await res.json();
+      const formatted = data.map(r => ({ 
+        id: r.id, 
+        displayName: r.displayName, 
+        rating: r.rating, 
+        text: r.text, 
+        date: r.date 
+      }));
+      setReviews(formatted);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
   }, [recipeId]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]); 
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-
     if (formRating === 0) {
       setErrorMessage("Please select a star rating between 1 and 5.");
       return;
     }
 
+    const res = await fetch(`/api/recipes/${recipeId}/reviews`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: currentUser?.uid, // Added safety check
+        displayName: currentUser?.displayName || "Anonymous",
+        rating: formRating,
+        text: formBody.trim(),
+      }),
+    });
 
-      const res = await fetch(`/api/recipes/${recipeId}/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: currentUser.uid,
-          displayName: currentUser.displayName || "Anonymous",
-          rating: formRating,
-          text: formBody.trim(),
-        }),
-      });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ message: "Unknown error" }));
+      console.error("Backend error response:", errorData);
+      throw new Error("Failed to submit review");
+    }
 
-      if (!res.ok) {
-        throw new Error("Failed to submit review");
-      }
-      // re-fetch reviews
-      await fetchReviews();
-
-      setFormRating(0);
-      setFormBody("");
-      setErrorMessage("");
-
+    await fetchReviews();
+    setFormRating(0);
+    setFormBody("");
+    setErrorMessage("");
   };
 
   const filteredReviews = reviews.filter((review) => {
