@@ -124,7 +124,7 @@ export default function RecipeDetail() {
 
             <div className="recipe-sub-meta">
                 <span className="recipe-source-tag"> {recipe.source} </span>
-                <span className="rating-badge">⭐ {recipe.rating} ({recipe.reviewsCount ?? 0})</span>
+                <span className="rating-badge">⭐ {recipe.rating ?? 0} ({recipe.reviewsCount ?? 0})</span>
                 <span className="author-credit">By {recipe.author}</span>
             </div>
 

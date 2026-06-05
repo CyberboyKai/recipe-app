@@ -57,7 +57,7 @@ export default function Navbar() {
     <nav className="relative z-50 w-full border-b bg-white">
       <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-5 xl:gap-6">
         <NavLink to="/" className="brand-logo text-lg font-bold text-gray-950">
-          RecipeApp
+          The CookBook Nook
         </NavLink>
 
         <div className="hidden items-center gap-5 xl:flex">
