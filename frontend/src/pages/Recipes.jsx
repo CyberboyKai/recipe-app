@@ -245,7 +245,12 @@ export default function RecipePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="max-w-[1200px] mx-auto px-8 py-12 text-[#111]">
+      {/* PAGE HEADER */}
+      <header className="mb-6 text-left">
+        <h1 className="text-[2.5rem] font-bold tracking-[-0.02em] text-black mb-2">Recipes</h1>
+        <p className="text-[#666] text-base m-0">Browse, save, and discover your next favorite meal.</p>
+      </header>
       
       {/* TOOLBAR: Changed to a responsive grid/flex combo */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
