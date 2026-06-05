@@ -14,7 +14,7 @@ const RecipeSection = ({ recipes, status }) => {
               : 'Check our most popular recipes of this week'}
           </p>
         </div>
-        <Link className="button primary compact" to="#">
+        <Link className="button primary compact" to="/recipes">
           See All
         </Link>
       </div>
