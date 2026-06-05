@@ -14,7 +14,6 @@ import MyRecipes from './pages/MyRecipes.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Recipes from './pages/Recipes.jsx';
 import RecipeDetail from './pages/RecipeDetail.jsx';
-import RecipeDetail from './pages/RecipeDetail.jsx';
 import SignUp from './pages/SignUp.jsx';
 import Unauthorized from './pages/Unauthorized.jsx';
 

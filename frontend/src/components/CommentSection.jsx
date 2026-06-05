@@ -1,84 +1,105 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../pages/RecipeDetail.css";
 
-export default function CommentsSection() {
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      author: "Alex Miller",
-      date: "May 12, 2026",
-      body: "Turned out super creamy! Will absolutely be adding this into my weekly rotation.",
-      upvotes: 14,
-      replies: [
-        {
-          id: 101,
-          author: "John (Author)",
-          date: "May 13, 2026",
-          body: "Thanks! Glad you enjoyed the creaminess."
-        }
-      ]
-    },
-    {
-      id: 2,
-      author: "Jane Doe",
-      date: "February 18, 2026",
-      body: "Does anyone know if substituting heavy cream with coconut milk works well for this sauce?",
-      upvotes: 2,
-      replies: []
-    }
-  ]);
-
-  const [likedCommentIds, setLikedCommentIds] = useState([]);
+export default function CommentsSection({ recipeId, currentUser }) {
+  const [comments, setComments] = useState([]);
   const [newCommentText, setNewCommentText] = useState("");
   const [activeReplyCommentId, setActiveReplyCommentId] = useState(null);
   const [replyText, setReplyText] = useState("");
 
+  useEffect(() => {
+    async function fetchComments() {
+      try {
+        const res = await fetch(`/api/recipes/${recipeId}/comments`);
+        const data = await res.json();
+        setComments(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchComments();
+  }, [recipeId]);
+
   const totalCommentsCount = comments.reduce((acc, c) => acc + 1 + c.replies.length, 0);
 
-  const handleUpvoteToggle = (commentId) => {
-    const hasAlreadyLiked = likedCommentIds.includes(commentId);
-    setComments(
-      comments.map((c) => (c.id === commentId ? { ...c, upvotes: hasAlreadyLiked ? c.upvotes - 1 : c.upvotes + 1 } : c))
-    );
-    setLikedCommentIds(hasAlreadyLiked ? likedCommentIds.filter((id) => id !== commentId) : [...likedCommentIds, commentId]);
-  };
-
-  const handleMainCommentSubmit = (e) => {
+  const handleMainCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newCommentText.trim()) return;
+    try {
+      await fetch(`/api/recipes/${recipeId}/comments`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId: currentUser.uid,
+            displayName: currentUser.displayName,
+            content: newCommentText
+          })
+        }
+      );
 
-    const freshComment = {
-      id: Date.now(),
-      author: "Anonymous Reviewer",
-      date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-      body: newCommentText,
-      upvotes: 0,
-      replies: []
-    };
+      const res = await fetch(`/api/recipes/${recipeId}/comments`);
+      const comments = await res.json();
+      setComments(comments);
+      setNewCommentText("");
 
-    setComments([freshComment, ...comments]);
-    setNewCommentText("");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleReplySubmit = (e, commentId) => {
+  const handleUpvoteToggle = async (commentId) => {
+    try {
+      await fetch(`/api/recipes/${recipeId}/comments/${commentId}/like`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId: currentUser.uid
+          })
+        }
+      );
+
+      const res = await fetch(`/api/recipes/${recipeId}/comments`);
+      const data = await res.json();
+      setComments(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleReplySubmit = async (e, commentId) => {
     e.preventDefault();
     if (!replyText.trim()) return;
+    try {
+      await fetch(`/api/recipes/${recipeId}/comments/${commentId}/replies`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId: currentUser.uid,
+            displayName: currentUser.displayName,
+            content: replyText
+          })
+        }
+      );
 
-    const freshReply = {
-      id: Date.now(),
-      author: "Anonymous Replier",
-      date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-      body: replyText
-    };
+      const res = await fetch(`/api/recipes/${recipeId}/comments`);
+      const data = await res.json();
+      setComments(data);
+      setReplyText("");
+      setActiveReplyCommentId(null);
 
-    setComments(
-      comments.map((c) => (c.id === commentId ? { ...c, replies: [...c.replies, freshReply] } : c))
-    );
-    setReplyText("");
-    setActiveReplyCommentId(null);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const sortedComments = [...comments].sort((a, b) => b.upvotes - a.upvotes);
+  const sortedComments = [...comments].sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
 
   return (
     <div className="comments-section-container">
@@ -103,21 +124,21 @@ export default function CommentsSection() {
 
       <div className="comments-list-thread">
         {sortedComments.map((comment) => {
-          const isItemLiked = likedCommentIds.includes(comment.id);
+          const isItemLiked = comment.likes?.includes(currentUser.uid);
           return (
             <div key={comment.id} className="comment-card-block">
               <div className="comment-card-header">
                 <div className="user-avatar-placeholder">👩‍🍳</div>
                 <div className="user-meta-info">
-                  <span className="commenter-name">{comment.author}</span>
+                  <span className="commenter-name">{comment.displayName}</span>
                   <span className="comment-date-stamp">{comment.date}</span>
                 </div>
               </div>
-              <p className="comment-body-text">{comment.body}</p>
+              <p className="comment-body-text">{comment.content}</p>
               
               <div className="comment-action-bar">
                 <button className={`btn-like-action ${isItemLiked ? "user-has-liked" : ""}`} onClick={() => handleUpvoteToggle(comment.id)}>
-                  ❤️ {comment.upvotes}
+                  ❤️ {comment.likes?.length || 0}
                 </button>
                 <button className="btn-reply-action" onClick={() => setActiveReplyCommentId(activeReplyCommentId === comment.id ? null : comment.id)}>
                   {activeReplyCommentId === comment.id ? "Cancel Reply" : "Reply"}
@@ -130,11 +151,11 @@ export default function CommentsSection() {
                     <div className="comment-card-header">
                       <div className="user-avatar-placeholder">👨‍🍳</div>
                       <div className="user-meta-info">
-                        <span className="commenter-name">{reply.author}</span>
+                        <span className="commenter-name">{reply.displayName}</span>
                         <span className="comment-date-stamp">{reply.date}</span>
                       </div>
                     </div>
-                    <p className="comment-body-text">{reply.body}</p>
+                    <p className="comment-body-text">{reply.content}</p>
                   </div>
                 </div>
               ))}

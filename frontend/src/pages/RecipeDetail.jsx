@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import useAuth from '../hooks/useAuth.js';
 import CommentsSection from "../components/CommentSection.jsx";
 import RatingSummary from "../components/RatingSummary";
 import ReviewsSection from "../components/ReviewSection.jsx";
 import "../styles.css";
 
 export default function RecipeDetail() {
+    const { currentUser: user, isAuthLoading } = useAuth();
+    console.log("Current user in RecipeDetail:", user);
+    const navigate = useNavigate();
     const [recipe, setRecipe] = useState(null);
     const [reviews] = useState([
       {
@@ -37,6 +41,18 @@ export default function RecipeDetail() {
   // Set loading to false initially so the mock data displays right away
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // redirect to login if not authenticated
+    useEffect(() => {
+        if (!isAuthLoading && !user) {
+            navigate('/login');
+        }
+    }, [user, isAuthLoading, navigate]);
+
+    if (user) {
+        console.log(user.uid);
+        console.log(user.displayName);
+    }
 
     // useEffect is commented out so it doesn't overwrite your mock data with an API call
     const { id } = useParams();
@@ -75,8 +91,14 @@ export default function RecipeDetail() {
         }));
     };
 
-
-  if (loading) return <div className="loader">Loading recipe info...</div>;
+  if (isAuthLoading || loading) {
+    return (
+      <div className="page-loading-state">
+        <div className="loading-spinner" />
+        <p>Loading recipe...</p>
+      </div>
+    );
+  }
   if (error) return <div className="error-msg">Error: {error}</div>;
   if (!recipe) return <div className="error-msg">No recipe data found.</div>;
 
@@ -153,7 +175,7 @@ export default function RecipeDetail() {
 
         <div className="comments-section-container">
             <RatingSummary reviews={reviews} />
-            <CommentsSection />
+            <CommentsSection recipeId={id} currentUser={user}/>
             <ReviewsSection />
         </div>
         
