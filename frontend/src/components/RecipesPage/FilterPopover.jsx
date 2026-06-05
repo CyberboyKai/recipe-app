@@ -59,9 +59,9 @@ export default function FilterPopover({ filters, onChange, onClose, onSearch }) 
         onChange={(e) => onChange({ ...filters, minHealthScore: Number(e.target.value) })}
       >
         <option value={0}>Any</option>
-        <option value={80}>Highly nutritious (80+)</option>
-        <option value={60}>Well balanced (60+)</option>
-        <option value={40}>Moderately balanced (40+)</option>
+        <option value={80}>High Nutrition</option>
+        <option value={60}>Good Nutrition</option>
+        <option value={40}>Mid Nutrition</option>
       </select>
 
       {/* RESET */}
