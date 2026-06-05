@@ -18,13 +18,16 @@ import Recipes from './pages/Recipes.jsx';
 import RecipeDetail from './pages/RecipeDetail.jsx';
 import SignUp from './pages/SignUp.jsx';
 import Unauthorized from './pages/Unauthorized.jsx';
+import { RecipesProvider } from './context/RecipesProvider.jsx';
 
 const App = () => {
   return (
     <AuthProvider>
-      <ChatProvider>
-        <div className="min-h-screen bg-white">
-          <Navbar />
+      {/* RecipesProvider wraps ChatProvider so the AI gets the data! */}
+      <RecipesProvider>
+        <ChatProvider>
+          <div className="min-h-screen bg-white">
+            <Navbar />
 
           <Routes>
             <Route path="/" element={<Home />} />
@@ -49,8 +52,9 @@ const App = () => {
           </Routes>
         </div>
 
-        <RecipeChatbot />
-      </ChatProvider>
+          <RecipeChatbot />
+        </ChatProvider>
+      </RecipesProvider>
     </AuthProvider>
   );
 };
