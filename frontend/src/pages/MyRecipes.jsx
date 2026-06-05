@@ -14,24 +14,9 @@ import { useNavigate } from 'react-router-dom';
 
 import { db } from '../firebase.js';
 import useAuth from '../hooks/useAuth.js';
-import salad from '../assets/salad.png';
 import RecipeCard from '../components/RecipeCard.jsx';
-import ReviewCard from '../components/ReviewCard.jsx';
 
 import { getHealthText } from "../services/healthScore";
-
-const placeholderReviews = [
-  {
-    name: 'Sarah M.',
-    quote: 'The recipes here are not only delicious but also easy to follow.',
-    position: 'left',
-  },
-  {
-    name: 'Farellin J.',
-    quote: "I've discovered a treasure trove of meatless recipes that have made my meals.",
-    position: 'right',
-  },
-];
 
 const MyRecipes = () => {
   const { currentUser: user } = useAuth();
@@ -41,6 +26,15 @@ const MyRecipes = () => {
   const [savedRecipes, setSavedRecipes] = useState([]);
   const [loadingCreated, setLoadingCreated] = useState(true);
   const [loadingSaved, setLoadingSaved] = useState(true);
+
+  const formatUserRecipe = (id, data) => ({
+    ...data,
+    id,
+    href: `/recipes/${id}`,
+    time: `${(data.prepTime ?? 0) + (data.cookTime ?? 0)} mins`,
+    servings: `${data.servings ?? 1} servings`,
+    healthScore: getHealthText(data.healthScore ?? 0),
+  });
 
   // redirect to login if not authenticated
   useEffect(() => {
@@ -90,15 +84,6 @@ const MyRecipes = () => {
     };
     fetchSaved();
   }, [user]);
-
-  const formatUserRecipe = (id, data) => ({
-    ...data,
-    id,
-    href: `/recipes/${id}`,
-    time: `${(data.prepTime ?? 0) + (data.cookTime ?? 0)} mins`,
-    servings: `${data.servings ?? 1} servings`,
-    healthScore: getHealthText(data.healthScore ?? 0),
-  });
 
   const handleDelete = async (recipeId) => {
     await deleteDoc(doc(db, 'recipes', recipeId));
