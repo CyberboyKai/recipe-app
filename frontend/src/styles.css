@@ -553,6 +553,22 @@ input {
   gap: 16px;
 }
 
+.recipe-source-row {
+  margin-top: 12px;
+}
+
+.recipe-source-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef7ff;
+  border: 1px solid #cfe4ff;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .recipe-main-title {
   margin: 0;
   font-size: clamp(2rem, 4vw, 3rem);

@@ -1,6 +1,6 @@
 import express from "express";
 import db from "../firebase.js";
-import { collection, doc, setDoc, getDocs, deleteDoc, orderBy, query, limit, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, getDocs, deleteDoc, orderBy, query, limit, serverTimestamp } from "firebase/firestore";
 
 const router = express.Router();
 
@@ -96,6 +96,31 @@ router.get("/recipe/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
+    const recipeRef = doc(db, "recipes", String(id));
+    const recipeSnap = await getDoc(recipeRef);
+
+    // check Firestore first
+    if (recipeSnap.exists()) {
+      const cachedRecipe = recipeSnap.data();
+
+      const hasIngredients =
+        Array.isArray(cachedRecipe.ingredients) &&
+        cachedRecipe.ingredients.length > 0;
+
+      const hasInstructions =
+        Array.isArray(cachedRecipe.instructions) &&
+        cachedRecipe.instructions.length > 0;
+
+      if (hasIngredients && hasInstructions) {
+        console.log(`Serving recipe ${id} from Firestore`);
+        return res.json(cachedRecipe);
+      }
+
+      console.log(
+        `Recipe ${id} exists but missing ingredients/instructions. Refreshing from Spoonacular.`
+      );
+    }
+    
     if (!process.env.SPOONACULAR_API_KEY) {
       return res.status(500).json({ error: "SPOONACULAR_API_KEY is not defined" });
     }
@@ -118,8 +143,7 @@ router.get("/recipe/:id", async (req, res) => {
 
     const data = await response.json();
 
-    // save full detail to Firestore so repeat visits to the ID are free
-    await setDoc(doc(db, "recipes", String(id)), {
+    const recipeData = {
       id: data.id,
       title: data.title,
       image: data.image ?? null,
@@ -128,20 +152,29 @@ router.get("/recipe/:id", async (req, res) => {
       readyInMinutes: data.readyInMinutes ?? 0,
       preparationMinutes: data.preparationMinutes ?? 0,
       cookingMinutes: data.cookingMinutes ?? 0,
+      healthScore: data.healthScore ?? 0,
+      author: data.sourceName ?? null,
+      url: data.sourceUrl ?? null, 
       ingredients: (data.extendedIngredients || []).map(ing => ({
         id: ing.id,
         name: ing.name,
         amount: ing.amount,
         unit: ing.unit,
       })),
-      instructions: (data.analyzedInstructions?.[0]?.steps || []).map(step => ({
+
+      instructions: (
+        data.analyzedInstructions?.[0]?.steps || []
+      ).map(step => ({
         number: step.number,
         step: step.step,
       })),
-      savedAt: serverTimestamp(),
-    });
+    };
 
-    res.json(data);
+    // save full detail to Firestore so repeat visits to the ID are free
+    // use merge: true to make sure not to ovewrite prev data
+    await setDoc(doc(db, "recipes", String(id)), recipeData, { merge: true });
+
+    res.json(recipeData);
   } catch (err) {
     console.error("Recipe Route Error:", err);
     res.status(500).json({ error: "Failed to fetch recipe", details: err.message });
