@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "../pages/RecipeDetail.css";
 
 export default function CommentsSection({ recipeId, currentUser }) {

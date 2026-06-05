@@ -25,8 +25,6 @@ export default function ReviewsSection({ recipeId, currentUser }) {
       }));
 
       setReviews(formatted);
-    } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -62,15 +60,7 @@ export default function ReviewsSection({ recipeId, currentUser }) {
         console.error("Backend error response:", data);
         throw new Error("Failed to submit review");
       }
-      // re-fetch reviews OR optimistically update:
-      const newReview = {
-        id: currentUser.uid,
-        displayName: currentUser.displayName,
-        rating: formRating,
-        text: formBody,
-        date: new Date(),
-      };
-
+      // re-fetch reviews
       await fetchReviews();
 
       setFormRating(0);
