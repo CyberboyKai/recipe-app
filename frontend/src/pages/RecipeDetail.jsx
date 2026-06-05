@@ -11,32 +11,6 @@ export default function RecipeDetail() {
     console.log("Current user in RecipeDetail:", user);
     const navigate = useNavigate();
     const [recipe, setRecipe] = useState(null);
-    const [reviews] = useState([
-      {
-        id: 1,
-        userName: "Sarah Jenkins",
-        rating: 5,
-        body: "This recipe was incredibly easy to follow and tasted absolutely amazing!"
-      },
-      {
-        id: 2,
-        userName: "Gordon R.",
-        rating: 1,
-        body: "Sauce separated completely. Instructions lacked temperature breakdown details for pan reductions."
-      },
-      {
-        id: 3,
-        userName: "Emma Watson",
-        rating: 4,
-        body: "Very good! Added a bit of extra garlic and it was perfect."
-      },
-      {
-        id: 4,
-        userName: "Michael B.",
-        rating: 5,
-        body: "A total hit with the family! Simple ingredients, restaurant quality flavor."
-      }
-    ]);
 
   // Set loading to false initially so the mock data displays right away
     const [loading, setLoading] = useState(false);
@@ -137,7 +111,7 @@ export default function RecipeDetail() {
 
             <div className="recipe-sub-meta">
                 <span className="recipe-source-tag"> {recipe.source} </span>
-                <span className="rating-badge">⭐ {recipe.rating} ({recipe.reviewsCount} reviews)</span>
+                <span className="rating-badge">⭐ {recipe.rating} ({recipe.reviewsCount ?? 0})</span>
                 <span className="author-credit">By {recipe.author}</span>
             </div>
 
@@ -174,7 +148,7 @@ export default function RecipeDetail() {
         </details>
 
         <div className="comments-section-container">
-            <RatingSummary reviews={reviews} />
+            <RatingSummary recipeId={id} />
             <CommentsSection recipeId={id} currentUser={user}/>
             <ReviewsSection recipeId={id} currentUser={user}/>
         </div>

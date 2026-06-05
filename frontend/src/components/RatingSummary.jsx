@@ -1,7 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../pages/RecipeDetail.css";
 
-export default function RatingSummary({ reviews = [] }) {
+export default function RatingSummary({ recipeId }) {
+  const [reviews, setReviews] = useState([]);
+
+  const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/recipes/${recipeId}/reviews`);
+        const data = await res.json();
+  
+        const formatted = data.map(r => ({
+          id: r.id,
+          displayName: r.displayName,
+          rating: r.rating,
+          text: r.text,
+          date: r.date?.seconds
+            ? new Date(r.date.seconds * 1000).toLocaleDateString()
+            : "Recently",
+        }));
+
+        console.log("RAW REVIEWS:", data);
+  
+        setReviews(formatted);
+      } catch (err) {
+        console.error(err);
+      } 
+    };
+  
+    useEffect(() => {
+      fetchReviews();
+    }, [recipeId]);
+
   const totalReviewsCount = reviews.length;
   
   const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -65,9 +94,9 @@ export default function RatingSummary({ reviews = [] }) {
           <div className="featured-card-pane highest-rating-pane">
             <div className="featured-badge-header top-positive">Highest Rated Positive Review</div>
             <div className="featured-reviewer-meta">
-              <strong>{highestReview.userName}</strong> <span className="starred-accent">{"★".repeat(highestReview.rating)}</span>
+              <strong>{highestReview.displayName}</strong> <span className="starred-accent">{"★".repeat(highestReview.rating)}</span>
             </div>
-            <p className="featured-snippet-body">"{highestReview.body}"</p>
+            <p className="featured-snippet-body">"{highestReview.text}"</p>
           </div>
         )}
 
@@ -75,9 +104,9 @@ export default function RatingSummary({ reviews = [] }) {
           <div className="featured-card-pane lowest-rating-pane">
             <div className="featured-badge-header top-critical">Lowest Rated Critical Review</div>
             <div className="featured-reviewer-meta">
-              <strong>{lowestReview.userName}</strong> <span className="starred-accent">{"★".repeat(lowestReview.rating)}</span>
+              <strong>{lowestReview.displayName}</strong> <span className="starred-accent">{"★".repeat(lowestReview.rating)}</span>
             </div>
-            <p className="featured-snippet-body">"{lowestReview.body}"</p>
+            <p className="featured-snippet-body">"{lowestReview.text}"</p>
           </div>
         )}
       </div>

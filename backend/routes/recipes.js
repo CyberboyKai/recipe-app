@@ -140,7 +140,7 @@ const updateRecipeRatingStats = async (recipeId) => {
 
   await updateDoc(recipeRef, {
     rating: avgRating,
-    rating_count: ratingCount,
+    reviewsCount: ratingCount,
   });
 };
 
