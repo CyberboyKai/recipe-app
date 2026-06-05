@@ -64,11 +64,7 @@ export function RecipesProvider({ children }) {
   }
 
   // SEARCH API RECIPES (Spoonacular)
-<<<<<<< HEAD:frontend/src/context/RecipesDataContext.jsx
-  async function searchRecipes(query, filters = {}) {
-=======
   async function searchRecipes(query, filters = {}, source = activeSource) {
->>>>>>> 6c46a65 (feat: match recipe card to be consistent with the app, add more filters with upgraded fetch and search logic):frontend/src/context/RecipesProvider.jsx
     if (!query.trim()) {
       lastOfficialSearch.current = null;
       setSearchResults(null);
