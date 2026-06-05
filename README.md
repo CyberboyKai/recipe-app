@@ -1,4 +1,4 @@
-# RECIPE-APP
+# THE COOKBOOK NOOK
 
 
 ## Project Structure
