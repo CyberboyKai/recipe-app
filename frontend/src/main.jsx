@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './App.jsx';
 import AuthProvider from './context/AuthProvider.jsx';
-import { RecipesProvider } from "./context/RecipesDataContext.jsx";
+import { RecipesProvider } from "./context/RecipesProvider.jsx";
 import './index.css';
 import './styles.css';
 
