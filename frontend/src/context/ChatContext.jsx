@@ -8,7 +8,7 @@ export const ChatProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   
 
-  const { officialRecipes } = useContext(RecipesContext) || {};
+  const { officialRecipes, userRecipes } = useContext(RecipesContext) || {};
 
   const handleSend = async (rawInput) => {
     const content = rawInput.trim();
@@ -24,7 +24,7 @@ export const ChatProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: newMessages,
-          recipes: officialRecipes,
+          recipes: [...(officialRecipes || []), ...(userRecipes || [])],
         }),
       });
 

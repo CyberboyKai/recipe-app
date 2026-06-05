@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { RecipesContext } from './RecipesContext';
 
 export function RecipesProvider({ children }) {
@@ -10,8 +10,12 @@ export function RecipesProvider({ children }) {
   const [searchResults, setSearchResults] = useState(null);
 
   const [loading, setLoading] = useState(false);
+  const lastOfficialSearch = useRef(null);
 
-  const lastOfficialSearch = useRef(null); 
+  useEffect(() => {
+    loadOfficialRecipes();
+    loadUserRecipes();
+  }, []);
 
   function normalizeRecipes(results) {
     return (results || []).map((recipe) => ({

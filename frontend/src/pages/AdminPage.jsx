@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import axios from 'axios';
 import './AdminPage.css';
 
@@ -11,26 +12,45 @@ function AdminPage() {
   const [recipeToReject, setRecipeToReject] = useState(null);
 
   useEffect(() => {
-    const fetchPendingRecipes = async () => {
-      try { 
-        const response = await axios.get('/api/admin/pending');
-        setPendingRecipes(response.data); 
-      } catch (err) {
-        console.error('Error fetching recipes:', err);
-        setPendingRecipes([]);
-        setError('Failed to load pending recipes. Please try again later.');
-      } finally { 
+    const auth = getAuth();
+    
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const token = await user.getIdToken(); 
+          
+          const response = await axios.get('/api/admin/pending', {
+            headers: { Authorization: `Bearer ${token}` } 
+          });
+          setPendingRecipes(response.data);
+        } catch (err) {
+          console.error('Error fetching recipes:', err);
+          setPendingRecipes([]);
+          setError('Failed to load pending recipes. Please try again later.');
+        } finally { 
+          setIsLoading(false);
+        }
+      } else {
         setIsLoading(false);
       }
-    };
-    fetchPendingRecipes();
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleApprove = async (recipeId) => {
     try {
-      await axios.put(`/api/admin/approve/${recipeId}`);
-      setPendingRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.id !== recipeId));      
-      setSelectedRecipe(null); 
+      const auth = getAuth();
+      const token = await auth.currentUser.getIdToken();
+
+      await axios.put(`/api/admin/approve/${recipeId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      }); 
+      
+      setPendingRecipes((prevRecipes) => prevRecipes.filter(recipe => recipe.id !== recipeId));
+      
+      setSelectedRecipe(null);
+      
     } catch (err) {
       console.error('Error approving recipe:', err);
       alert('Failed to approve recipe.');
@@ -39,13 +59,19 @@ function AdminPage() {
 
   const confirmReject = async () => {
     if (!recipeToReject) return;
-    
-    try { 
-      await axios.delete(`/api/admin/reject/${recipeToReject.id}`);
-      setPendingRecipes((prev) => prev.filter((recipe) => recipe.id !== recipeToReject.id));
+    try {
+      const auth = getAuth();
+      const token = await auth.currentUser.getIdToken();
+
+      await axios.delete(`/api/admin/reject/${recipeToReject.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setPendingRecipes((prevRecipes) => prevRecipes.filter(recipe => recipe.id !== recipeToReject.id));
       
       setRecipeToReject(null);
-      setSelectedRecipe(null); 
+      setSelectedRecipe(null);
+      
     } catch (err) {
       console.error('Error rejecting recipe:', err);
       alert('Backend failed to delete. Check your terminal.');
@@ -94,28 +120,42 @@ function AdminPage() {
         </div>
       )}
 
-      {/* 1. Modal for reviewing full recipe details */}
       {selectedRecipe && (
         <div className="modal-overlay" onClick={() => setSelectedRecipe(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="close-modal" onClick={() => setSelectedRecipe(null)}>×</button>
+            
             <h2>{selectedRecipe.title}</h2>
             <p className="modal-author">Submitted by: {selectedRecipe.author}</p>
             
-            <div className="modal-section">
+            {selectedRecipe.image && (
+              <img 
+                src={selectedRecipe.image} 
+                alt={selectedRecipe.title} 
+                style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', borderRadius: '8px', marginTop: '10px' }}
+              />
+            )}
+            
+            {/* 1. Added Ingredients Section */}
+            <div className="modal-section" style={{ marginTop: '20px' }}>
               <h4>Ingredients</h4>
-              <ul>
+              <ul style={{ paddingLeft: '24px', listStyleType: 'disc' }}>
                 {selectedRecipe.ingredients?.map((ing, idx) => (
-                  <li key={idx}>{ing}</li>
+                  <li key={idx} style={{ marginBottom: '6px' }}>
+                    {/* This handles both simple strings and complex Spoonacular database objects */}
+                    {typeof ing === 'string' ? ing : `${ing.amount || ''} ${ing.unit || ''} ${ing.name || ''}`.trim()}
+                  </li>
                 )) || <li>No ingredients listed.</li>}
               </ul>
             </div>
 
-            <div className="modal-section">
+            {/* 2. Fixed Instructions Section Numbering */}
+            <div className="modal-section" style={{ marginTop: '20px' }}>
               <h4>Instructions</h4>
-              <ol>
+              {/* Added paddingLeft and listStyleType to override the Vite CSS reset */}
+              <ol style={{ paddingLeft: '24px', listStyleType: 'decimal' }}>
                 {selectedRecipe.instructions?.map((inst, idx) => (
-                  <li key={idx}>{inst}</li>
+                  <li key={idx} style={{ marginBottom: '8px' }}>{inst}</li>
                 )) || <li>No instructions listed.</li>}
               </ol>
             </div>

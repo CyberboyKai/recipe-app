@@ -1,8 +1,13 @@
 import express from 'express';
 import { db } from '../db/firebaseConfig.js';
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore'; 
 import admin from 'firebase-admin'; 
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    projectId: "recipe-app-week3"
+  });
+}
 
 const router = express.Router();
 
@@ -18,21 +23,26 @@ const verifyAdmin = async (req, res, next) => {
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     
-    if (decodedToken.admin === true) {
+    const userDocRef = doc(db, 'users', decodedToken.uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (userDoc.exists() && userDoc.data().role === 'admin') {
       req.user = decodedToken;
       next(); 
     } else {
+      console.log(`User ${decodedToken.uid} tried to access admin routes but is not an admin.`);
       return res.status(403).json({ error: 'Forbidden: Admin access required' });
     }
   } catch (error) {
+    console.error("Token verification failed:", error);
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 };
 
 router.get('/pending', verifyAdmin, async (req, res) => {
   try {
-    const recipesRef = collection(db, 'Created recipes');
-    const q = query(recipesRef, where('Published', '==', false));
+    const recipesRef = collection(db, 'recipes');
+    const q = query(recipesRef, where('published', '==', false));
     const querySnapshot = await getDocs(q);
     
     const pendingRecipes = querySnapshot.docs.map(doc => ({
@@ -50,8 +60,8 @@ router.get('/pending', verifyAdmin, async (req, res) => {
 router.put('/approve/:id', verifyAdmin, async (req, res) => {
   const { id } = req.params;
   try {
-    const recipeDoc = doc(db, 'Created recipes', id);
-    await updateDoc(recipeDoc, { Published: true });
+    const recipeDoc = doc(db, 'recipes', id);
+    await updateDoc(recipeDoc, { published: true });
     res.json({ message: `Recipe ${id} approved successfully!` });
   } catch (error) {
     console.error(`Error approving recipe ${id}:`, error);
@@ -62,7 +72,7 @@ router.put('/approve/:id', verifyAdmin, async (req, res) => {
 router.delete('/reject/:id', verifyAdmin, async (req, res) => {
   const { id } = req.params;
   try {
-    const recipeDoc = doc(db, 'Created recipes', id);
+    const recipeDoc = doc(db, 'recipes', id);
     await deleteDoc(recipeDoc);
     res.json({ message: `Recipe ${id} rejected and deleted.` });
   } catch (error) {
